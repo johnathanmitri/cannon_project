@@ -124,7 +124,7 @@ class Projectile(GameObject):
 TARGET_RADIUS = 50
 targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2))
 
-Target(1, 500, 100,0,0,TARGET_RADIUS)
+Target(1, 500, 100,-10,0,TARGET_RADIUS)
 
 while not done:
     clock.tick(30)
