@@ -16,7 +16,6 @@ clock = pg.time.Clock()
 frameCounter = 0
 gameObjects = []
 
-
 targetImage = pg.image.load("target.png")
 
 class GameObject:
@@ -86,13 +85,17 @@ class Target(Enemy):
     def getCollisionRect(self):
         return pg.Rect(1,1,1,1) #pg.Rect(self.x - self.radius, self.y - self.radius, self.radius, self.radius) 
 
-'''
 class AlgorithmTank(Tank, Enemy):
     
+    def draw(self):
+        return super().draw()
     def update(self):
-        if pg.time.get_ticks() % 3000 == 0: # shoot every three seconds for now'''
-
-
+        #if pg.time.get_ticks() % 3000 == 0: # shoot every three seconds for now'''
+        pass
+    def move(self):
+        return super().move()
+    def attack(self):
+        return super().attack()
 
 class Projectile(GameObject):
 
@@ -119,7 +122,15 @@ class Projectile(GameObject):
     def draw(self):
         pg.draw.circle(screen, RED, (self.x,self.y), self.radius)
 
+'''class Bombs(Projectile):
 
+'''
+
+'''
+class tankShells(Projectile):
+    
+
+'''
 
 TARGET_RADIUS = 50
 targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2))
