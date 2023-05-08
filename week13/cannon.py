@@ -16,8 +16,11 @@ clock = pg.time.Clock()
 frameCounter = 0
 gameObjects = []
 
+#Declaring the variable names of the images used in the program
 targetImage = pg.image.load("target.png")
+algorithmTankImage = pg.image.load("algorithmTankImage.png")
 
+#Making class Game Object that every class in the program is derived from
 class GameObject:
     
     def __init__(self, team, x, y):
@@ -45,14 +48,14 @@ class GameObject:
     def draw(self):
         pass  
 
-
+#Making class Tank that is parent to both User tank and Algorithm Tank
 class Tank(GameObject):
 
     def shootAt(self, x, y):
         '''
         Shoots a tank shell in the direction of the position (x, y)
         '''
-
+#MAking class Enemy that is parent to both the Targets and the Algorithm Tank
 class Enemy(GameObject):
 
     def attack(self):
@@ -88,11 +91,13 @@ class Target(Enemy):
 class AlgorithmTank(Tank, Enemy):
     
     def draw(self):
-        return super().draw()
+        #*****cant use radius here because its not a circle 
+        screen.blit(algorithmTankImage, (self.x-self.radius, self.y-self.radius))
     def update(self):
         #if pg.time.get_ticks() % 3000 == 0: # shoot every three seconds for now'''
         pass
-    def move(self):
+    def moveTo(self):
+        #this function moves the tank to a location such that it has a direct shot at the projectile 
         return super().move()
     def attack(self):
         return super().attack()
