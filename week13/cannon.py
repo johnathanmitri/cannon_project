@@ -21,7 +21,11 @@ gameObjects = []
 
 #Declaring the variable names of the images used in the program
 targetImage = pg.image.load("target.png")
+userTankImage = pg.image.load("userTank.png")
 algorithmTankImage = pg.image.load("algorithmTankImage.png")
+
+PLAYER_TEAM = 0
+ENEMY_TEAM = 1
 
 #Making class Game Object that every class in the program is derived from
 class GameObject:
@@ -54,10 +58,11 @@ class GameObject:
 #Making class Tank that is parent to both User tank and Algorithm Tank
 class Tank(GameObject):
 
-    def shootAt(self, x, y):
+    def shootAt(self, x, y, bulletSpeed):
         '''
         Shoots a tank shell in the direction of the position (x, y)
         '''
+        #Projectile(self.team, self.x, self.y, 0, 10, 5)
 #MAking class Enemy that is parent to both the Targets and the Algorithm Tank
 class Enemy(GameObject):
 
@@ -89,7 +94,7 @@ class Target(Enemy):
 
     '''FIX THIS LATER!!!!!!!'''
     def getCollisionRect(self):
-        return pg.Rect(1,1,1,1) #pg.Rect(self.x - self.radius, self.y - self.radius, self.radius, self.radius) 
+        return pg.Rect(self.x-self.radius,self.y-self.radius,self.radius*2, self.radius*2) #pg.Rect(self.x - self.radius, self.y - self.radius, self.radius, self.radius) 
 
 class AlgorithmTank(Tank, Enemy):
     
@@ -105,6 +110,30 @@ class AlgorithmTank(Tank, Enemy):
     def attack(self):
         return super().attack()
 
+class UserTank(Tank):
+    def __init__(self, team, x, y):
+        super().__init__(team,x,y)
+        self.lastTimeShot = 0
+    def update(self):
+        keys=pg.key.get_pressed()
+        if keys[pg.K_LEFT]:
+            self.x-=10
+        if keys[pg.K_RIGHT]:
+            self.x+=10
+        if keys[pg.K_SPACE]:
+            if frameCounter-self.lastTimeShot >= 15:
+                self.lastTimeShot = frameCounter
+                Projectile(self.team, self.x, self.y, 0, -10, 5)
+            
+    def draw(self):
+        screen.blit(userTankImage, (self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT))
+    def getCollisionRect(self):
+        # in order to ignore the blank space from the front of the tank up to the tip of the gun
+        ignoreTopPixelCount = (150/500) * (TANK_HALF_HEIGHT * 2)
+        return pg.Rect(self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT+ignoreTopPixelCount, TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2-ignoreTopPixelCount)
+
+
+
 class Projectile(GameObject):
 
     def __init__(self, team, x, y, vx, vy, radius):
@@ -114,7 +143,7 @@ class Projectile(GameObject):
         self.radius = radius
 
     def getCollisionRect(self):
-        return pg.Rect(self.x - self.radius, self.y - self.radius, self.radius, self.radius)
+        return pg.Rect(self.x - self.radius, self.y - self.radius, self.radius*2, self.radius*2)
 
     def update(self):
         super().update() # call parent update
@@ -143,6 +172,10 @@ class tankShells(Projectile):
 TARGET_RADIUS = 50
 targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2))
 
+TANK_HALF_WIDTH = 25
+TANK_HALF_HEIGHT = 50
+userTankImage = pg.transform.scale(userTankImage, (TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
+
 #Deciding the number of targets randomly to be between 7 - 10 targets
 numOfTargets = int(random.uniform(7,10))
 
@@ -164,6 +197,8 @@ for targets in range(numOfTargets + 1):
         Target(1, x_axis, y_axis, 0, vel, TARGET_RADIUS) #Moves target horizontally
     elif (dirToMove == 3):
         Target(1, x_axis, y_axis, vel, vel, TARGET_RADIUS) #Moves target diagonally
+
+UserTank(PLAYER_TEAM, SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
 
 while not done:
     clock.tick(30)
