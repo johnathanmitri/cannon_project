@@ -1,4 +1,5 @@
 import pygame as pg
+import random 
 
 pg.init()
 pg.font.init()
@@ -8,6 +9,8 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
 SCREEN_SIZE = (1280, 720)
+LOWER_BOUNDARY = 150
+
 screen = pg.display.set_mode((SCREEN_SIZE))
 pg.display.set_caption("The gun of بغداد")
 
@@ -78,7 +81,7 @@ class Target(Enemy):
         # Make target bounce off of their boundaries.
         if self.x <= 0 or self.x >= SCREEN_SIZE[0]:
             self.vx = -self.vx
-        if self.y <= 0 or self.y >= SCREEN_SIZE[1]:
+        if self.y <= 0 or self.y >= (SCREEN_SIZE[1] - LOWER_BOUNDARY):
             self.vy = -self.vy
 
         if frameCounter % 90 == 0: # shoot every three seconds for now
@@ -140,7 +143,27 @@ class tankShells(Projectile):
 TARGET_RADIUS = 50
 targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2))
 
-Target(1, 500, 100,-10,0,TARGET_RADIUS)
+#Deciding the number of targets randomly to be between 7 - 10 targets
+numOfTargets = int(random.uniform(7,10))
+
+#A for loop for randomly assigning each of those targets directions to move in and also having a random starting point for all of them
+for targets in range(numOfTargets + 1):
+    
+    #picking the velocity of each target randomly between -10 to -5 and 5 to 10
+    vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
+    
+    #picking the starting point of the target randomly 
+    x_axis = int(random.uniform(10,1200))
+    y_axis = int(random.uniform(100,500))
+    
+    #randomly picking a number to make a choice as to which direction it moves in 
+    dirToMove = int(random.uniform(1,4))
+    if (dirToMove == 1):
+        Target(1, x_axis, y_axis, vel, 0, TARGET_RADIUS) #Moves target horizontally
+    elif (dirToMove == 2):
+        Target(1, x_axis, y_axis, 0, vel, TARGET_RADIUS) #Moves target horizontally
+    elif (dirToMove == 3):
+        Target(1, x_axis, y_axis, vel, vel, TARGET_RADIUS) #Moves target diagonally
 
 while not done:
     clock.tick(30)
