@@ -143,10 +143,21 @@ class tankShells(Projectile):
 TARGET_RADIUS = 50
 targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2))
 
-#Deciding the number of targets randomly to be between 7 - 10 targets
-numOfTargets = int(random.uniform(7,10))
 
-#A for loop for randomly assigning each of those targets directions to move in and also having a random starting point for all of them
+#Loops for having a random starting point and velocities for all the targets
+
+#Making random number of targets (between 2-4) that move horizontally
+numOfTargets = int(random.uniform(2,4))
+for targets in range(numOfTargets + 1):
+    #picking the velocity of each target randomly between -10 to -5 and 5 to 10
+    vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
+    #picking the starting point of the target randomly 
+    x_axis = int(random.uniform(10,1200))
+    y_axis = int(random.uniform(100,500))
+    Target(1, x_axis, y_axis, vel, 0, TARGET_RADIUS)
+
+#Making random number of targets (between 2-4) that move vertically
+numOfTargets = int(random.uniform(2,4))
 for targets in range(numOfTargets + 1):
     
     #picking the velocity of each target randomly between -10 to -5 and 5 to 10
@@ -155,15 +166,20 @@ for targets in range(numOfTargets + 1):
     #picking the starting point of the target randomly 
     x_axis = int(random.uniform(10,1200))
     y_axis = int(random.uniform(100,500))
+    Target(1, x_axis, y_axis, 0, vel, TARGET_RADIUS) #Moves target vertically
+
+
+#Making random number of targets (between 2-4) that move diagonally
+numOfTargets = int(random.uniform(2,4))
+for targets in range(numOfTargets + 1):
     
-    #randomly picking a number to make a choice as to which direction it moves in 
-    dirToMove = int(random.uniform(1,4))
-    if (dirToMove == 1):
-        Target(1, x_axis, y_axis, vel, 0, TARGET_RADIUS) #Moves target horizontally
-    elif (dirToMove == 2):
-        Target(1, x_axis, y_axis, 0, vel, TARGET_RADIUS) #Moves target horizontally
-    elif (dirToMove == 3):
-        Target(1, x_axis, y_axis, vel, vel, TARGET_RADIUS) #Moves target diagonally
+    #picking the velocity of each target randomly between -10 to -5 and 5 to 10
+    vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
+    
+    #picking the starting point of the target randomly 
+    x_axis = int(random.uniform(10,1200))
+    y_axis = int(random.uniform(100,500))
+    Target(1, x_axis, y_axis, vel, vel, TARGET_RADIUS) 
 
 while not done:
     clock.tick(30)
