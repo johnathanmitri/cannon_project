@@ -10,6 +10,7 @@ RED = (255, 0, 0)
 
 SCREEN_SIZE = (1280, 720)
 LOWER_BOUNDARY = 150
+TANK_SPACE = 150
 
 screen = pg.display.set_mode((SCREEN_SIZE))
 pg.display.set_caption("The gun of بغداد")
@@ -79,9 +80,9 @@ class Target(Enemy):
     def update(self):
         super().update()
         # Make target bounce off of their boundaries.
-        if self.x <= 0 or self.x >= SCREEN_SIZE[0]:
+        if self.x <= TARGET_RADIUS or self.x >= (SCREEN_SIZE[0] - TARGET_RADIUS):
             self.vx = -self.vx
-        if self.y <= 0 or self.y >= (SCREEN_SIZE[1] - LOWER_BOUNDARY):
+        if self.y <= TANK_SPACE or self.y >= (SCREEN_SIZE[1] - LOWER_BOUNDARY):
             self.vy = -self.vy
 
         if frameCounter % 90 == 0: # shoot every three seconds for now
@@ -152,8 +153,8 @@ for targets in range(numOfTargets + 1):
     #picking the velocity of each target randomly between -10 to -5 and 5 to 10
     vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
     #picking the starting point of the target randomly 
-    x_axis = int(random.uniform(10,1200))
-    y_axis = int(random.uniform(100,500))
+    x_axis = int(random.uniform(51,1200))
+    y_axis = int(random.uniform(150,500))
     Target(1, x_axis, y_axis, vel, 0, TARGET_RADIUS)
 
 #Making random number of targets (between 2-4) that move vertically
@@ -164,10 +165,9 @@ for targets in range(numOfTargets + 1):
     vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
     
     #picking the starting point of the target randomly 
-    x_axis = int(random.uniform(10,1200))
-    y_axis = int(random.uniform(100,500))
+    x_axis = int(random.uniform(51,1200))
+    y_axis = int(random.uniform(150,500))
     Target(1, x_axis, y_axis, 0, vel, TARGET_RADIUS) #Moves target vertically
-
 
 #Making random number of targets (between 2-4) that move diagonally
 numOfTargets = int(random.uniform(2,4))
@@ -177,8 +177,8 @@ for targets in range(numOfTargets + 1):
     vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
     
     #picking the starting point of the target randomly 
-    x_axis = int(random.uniform(10,1200))
-    y_axis = int(random.uniform(100,500))
+    x_axis = int(random.uniform(51,1200))
+    y_axis = int(random.uniform(150,500))
     Target(1, x_axis, y_axis, vel, vel, TARGET_RADIUS) 
 
 while not done:
