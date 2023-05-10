@@ -6,7 +6,7 @@ pg.init()
 pg.font.init()
 
 FONT = pg.font.SysFont("dejavusansmono", 25)
-global score
+#global score
 score = 0
 
 #Declaring the variable names of the images used in the program
@@ -32,6 +32,7 @@ pg.display.set_caption("The gun of بغداد")
 done = False
 clock = pg.time.Clock()
 frameCounter = 0
+totalTargets = 0
 gameObjects = []
 
 PLAYER_TEAM = 0
@@ -236,37 +237,37 @@ def generateTargets():
         Target(x_axis, y_axis, vel, vel, TARGET_RADIUS) 
     return totalTargets
     
-def gamePlay():
-    
+def initializeGame():
     global frameCounter
+    frameCounter = 0
+    global score
+    score = 0
+    gameObjects.clear()
+    global totalTargets
     totalTargets = generateTargets()
-
     UserTank(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
 
-    while not done:
-        clock.tick(30)
-        screen.fill(BLACK)
+initializeGame()
 
-        score_board = (FONT.render("Score: {}".format(score), True, WHITE))
-        screen.blit(score_board, [10, 5])
+while not done:
+    clock.tick(30)
+    screen.fill(BLACK)
+    score_board = (FONT.render("Score: {}".format(score), True, WHITE))
+    screen.blit(score_board, [10, 5])
+    events = pg.event.get()
+    for event in events:
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_r: # restart is handled as KEYDOWN event so that it only runs once per click, instead of repeating as long as R is held. 
+                initializeGame()
+        if event.type == pg.QUIT:
+                exit()
+              
+    for gameObject in gameObjects:
+        gameObject.update()
+        gameObject.draw()
 
-        pg.event.get()
-        for gameObject in gameObjects:
-            gameObject.update()
-            gameObject.draw()
-
-        keys=pg.key.get_pressed()
-        if keys[pg.K_q] and keys[pg.K_LCTRL]:
-            exit()
-        #make it restart maybe here?
-        #this recursion here makes it an inifinite loop when you hit r
-        
-        if score == totalTargets:
-            totalTargets = totalTargets + generateTargets()
-
-        pg.display.flip()
-        frameCounter+=1
-
-    pg.quit()
-
-gamePlay()
+    if score == totalTargets:
+        totalTargets = totalTargets + generateTargets()
+    pg.display.flip()
+    frameCounter+=1
+pg.quit()
