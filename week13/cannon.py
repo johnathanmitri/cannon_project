@@ -169,13 +169,13 @@ def main():
         def update(self):
             super().update() # call parent update
             rect = self.getCollisionRect()
-            if self.y > SCREEN_SIZE[1]:
+            if self.y > SCREEN_SIZE[1] or self.y < 0:
                 self.destroy()
             else:
                 for gameObject in gameObjects:
                     if gameObject == self or gameObject.team == self.team:
                         continue
-                    
+
                     if rect.colliderect(gameObject.getCollisionRect()):
                         screen.blit(explosionImage, (self.x-TANK_HALF_WIDTH*2, self.y-TANK_HALF_HEIGHT*2))
                         gameObject.destroy()
