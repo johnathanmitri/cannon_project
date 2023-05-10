@@ -8,6 +8,12 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
+PINK = (255,0,127)
+BLUE = (0,0,255)
+GREEN = (0,255,0)
+COLORS = [PINK,BLUE,GREEN,RED,WHITE]
+
+
 SCREEN_SIZE = (1280, 720)
 LOWER_BOUNDARY = 150
 TANK_SPACE = 150
@@ -21,9 +27,10 @@ frameCounter = 0
 gameObjects = []
 
 #Declaring the variable names of the images used in the program
-targetImage = pg.image.load("target.png")
-userTankImage = pg.image.load("userTank.png")
-algorithmTankImage = pg.image.load("algorithmTankImage.png")
+targetImage = pg.image.load("week13/Target.png")
+userTankImage = pg.image.load("week13/userTank.png")
+algorithmTankImage = pg.image.load("week13/algorithmTankImage.png")
+explosionImage = pg.image.load("week13/explosion.png")
 
 PLAYER_TEAM = 0
 ENEMY_TEAM = 1
@@ -115,8 +122,12 @@ class UserTank(Tank):
     def __init__(self, team, x, y):
         super().__init__(team,x,y)
         self.lastTimeShot = 0
+        
     def update(self):
         keys=pg.key.get_pressed()
+
+        if keys[pg.K_q]:
+            exit()
         if keys[pg.K_LEFT]:
             self.x-=10
         if keys[pg.K_RIGHT]:
@@ -128,6 +139,7 @@ class UserTank(Tank):
             
     def draw(self):
         screen.blit(userTankImage, (self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT))
+    
     def getCollisionRect(self):
         # in order to ignore the blank space from the front of the tank up to the tip of the gun
         ignoreTopPixelCount = (150/500) * (TANK_HALF_HEIGHT * 2)
@@ -154,11 +166,13 @@ class Projectile(GameObject):
                 continue
 
             if rect.colliderect(gameObject.getCollisionRect()):
+                screen.blit(explosionImage, (self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT))
                 gameObject.destroy()
                 self.destroy()
 
     def draw(self):
-        pg.draw.circle(screen, RED, (self.x,self.y), self.radius)
+        value = random.randint(0,4)
+        pg.draw.circle(screen, COLORS[value], (self.x,self.y), self.radius)
 
 '''class Bombs(Projectile):
 
@@ -176,6 +190,7 @@ targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2)
 TANK_HALF_WIDTH = 25
 TANK_HALF_HEIGHT = 50
 userTankImage = pg.transform.scale(userTankImage, (TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
+explosionImage = pg.transform.scale(explosionImage, (TANK_HALF_WIDTH*5, TANK_HALF_HEIGHT*5))
 
 #Deciding the number of targets randomly to be between 7 - 10 targets
 numOfTargets = int(random.uniform(7,10))
