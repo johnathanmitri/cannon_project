@@ -126,8 +126,6 @@ class UserTank(Tank):
     def update(self):
         keys=pg.key.get_pressed()
 
-        if keys[pg.K_q]:
-            exit()
         if keys[pg.K_LEFT]:
             self.x-=10
         if keys[pg.K_RIGHT]:
@@ -240,6 +238,10 @@ while not done:
     for gameObject in gameObjects:
         gameObject.update()
         gameObject.draw()
+
+    keys=pg.key.get_pressed()
+    if keys[pg.K_q]:
+        exit()
 
     pg.display.flip()
     frameCounter+=1
