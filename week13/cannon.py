@@ -136,9 +136,11 @@ def main():
             keys=pg.key.get_pressed()
 
             if keys[pg.K_LEFT]:
-                self.x-=10
+                if (self.x-TANK_HALF_WIDTH > 10):
+                    self.x-=10
             if keys[pg.K_RIGHT]:
-                self.x+=10
+                if (self.x+TANK_HALF_WIDTH < SCREEN_SIZE[0]-10):
+                    self.x+=10
             if keys[pg.K_SPACE]:
                 if frameCounter-self.lastTimeShot >= 15:
                     self.lastTimeShot = frameCounter
