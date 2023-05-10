@@ -208,44 +208,51 @@ def main():
     userTankImage = pg.transform.scale(userTankImage, (TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
     explosionImage = pg.transform.scale(explosionImage, (TANK_HALF_WIDTH*5, TANK_HALF_HEIGHT*5))
 
-    #Deciding the number of targets randomly to be between 7 - 10 targets
-    numOfTargets = int(random.uniform(7,10))
+    def generateTargets():
+        totalTargets = 0
+        #Deciding the number of targets randomly to be between 7 - 10 targets
+        numOfTargets = int(random.uniform(7,10))
 
-    #Loops for having a random starting point and velocities for all the targets
+        #Loops for having a random starting point and velocities for all the targets
 
-    #Making random number of targets (between 2-4) that move horizontally
-    numOfTargets = int(random.uniform(2,4))
-    for targets in range(numOfTargets + 1):
-        #picking the velocity of each target randomly between -10 to -5 and 5 to 10
-        vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
-        #picking the starting point of the target randomly 
-        x_axis = int(random.uniform(51,1200))
-        y_axis = int(random.uniform(150,500))
-        Target(1, x_axis, y_axis, vel, 0, TARGET_RADIUS)
+        #Making random number of targets (between 2-4) that move horizontally
+        numOfTargets = int(random.uniform(2,4))
+        totalTargets = totalTargets + numOfTargets + 1
+        for targets in range(numOfTargets + 1):
+            #picking the velocity of each target randomly between -10 to -5 and 5 to 10
+            vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
+            #picking the starting point of the target randomly 
+            x_axis = int(random.uniform(51,1200))
+            y_axis = int(random.uniform(150,500))
+            Target(1, x_axis, y_axis, vel, 0, TARGET_RADIUS)
 
-    #Making random number of targets (between 2-4) that move vertically
-    numOfTargets = int(random.uniform(2,4))
-    for targets in range(numOfTargets + 1):
-        
-        #picking the velocity of each target randomly between -10 to -5 and 5 to 10
-        vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
-        
-        #picking the starting point of the target randomly 
-        x_axis = int(random.uniform(51,1200))
-        y_axis = int(random.uniform(150,500))
-        Target(1, x_axis, y_axis, 0, vel, TARGET_RADIUS) #Moves target vertically
+        #Making random number of targets (between 2-4) that move vertically
+        numOfTargets = int(random.uniform(2,4))
+        totalTargets = totalTargets + numOfTargets + 1
+        for targets in range(numOfTargets + 1):
+            
+            #picking the velocity of each target randomly between -10 to -5 and 5 to 10
+            vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
+            
+            #picking the starting point of the target randomly 
+            x_axis = int(random.uniform(51,1200))
+            y_axis = int(random.uniform(150,500))
+            Target(1, x_axis, y_axis, 0, vel, TARGET_RADIUS) #Moves target vertically
 
-    #Making random number of targets (between 2-4) that move diagonally
-    numOfTargets = int(random.uniform(2,4))
-    for targets in range(numOfTargets + 1):
-        
-        #picking the velocity of each target randomly between -10 to -5 and 5 to 10
-        vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
-        
-        #picking the starting point of the target randomly 
-        x_axis = int(random.uniform(51,1200))
-        y_axis = int(random.uniform(150,500))
-        Target(1, x_axis, y_axis, vel, vel, TARGET_RADIUS) 
+        #Making random number of targets (between 2-4) that move diagonally
+        numOfTargets = int(random.uniform(2,4))
+        totalTargets = totalTargets + numOfTargets + 1
+        for targets in range(numOfTargets + 1):
+            
+            #picking the velocity of each target randomly between -10 to -5 and 5 to 10
+            vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
+            
+            #picking the starting point of the target randomly 
+            x_axis = int(random.uniform(51,1200))
+            y_axis = int(random.uniform(150,500))
+            Target(1, x_axis, y_axis, vel, vel, TARGET_RADIUS) 
+        return totalTargets
+    totalTargets = generateTargets()
 
     UserTank(PLAYER_TEAM, SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
 
@@ -266,6 +273,9 @@ def main():
             exit()
         if keys[pg.K_r]:
             main()
+
+        if score == totalTargets:
+            totalTargets = totalTargets + generateTargets()
 
         pg.display.flip()
         frameCounter+=1
