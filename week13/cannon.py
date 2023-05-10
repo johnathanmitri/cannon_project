@@ -82,13 +82,14 @@ def main():
             #Projectile(self.team, self.x, self.y, 0, 10, 5)
     #MAking class Enemy that is parent to both the Targets and the Algorithm Tank
     class Enemy(GameObject):
-
+        def __init__(self,x,y):
+            super().__init__(ENEMY_TEAM, x, y)
         def attack(self):
             pass
 
     class Target(Enemy):
-        def __init__(self, team, x, y, vx, vy, radius):
-            super().__init__(team, x, y)
+        def __init__(self, x, y, vx, vy, radius):
+            super().__init__(x, y)
             self.vx = vx
             self.vy = vy
             self.radius = radius
@@ -128,8 +129,8 @@ def main():
             return super().attack()
 
     class UserTank(Tank):
-        def __init__(self, team, x, y):
-            super().__init__(team,x,y)
+        def __init__(self, x, y):
+            super().__init__(PLAYER_TEAM,x,y)
             self.lastTimeShot = 0
             
         def update(self):
@@ -229,7 +230,7 @@ def main():
             #picking the starting point of the target randomly 
             x_axis = int(random.uniform(51,1200))
             y_axis = int(random.uniform(150,500))
-            Target(1, x_axis, y_axis, vel, 0, TARGET_RADIUS)
+            Target(x_axis, y_axis, vel, 0, TARGET_RADIUS)
 
         #Making random number of targets (between 2-4) that move vertically
         numOfTargets = int(random.uniform(2,4))
@@ -242,7 +243,7 @@ def main():
             #picking the starting point of the target randomly 
             x_axis = int(random.uniform(51,1200))
             y_axis = int(random.uniform(150,500))
-            Target(1, x_axis, y_axis, 0, vel, TARGET_RADIUS) #Moves target vertically
+            Target(x_axis, y_axis, 0, vel, TARGET_RADIUS) #Moves target vertically
 
         #Making random number of targets (between 2-4) that move diagonally
         numOfTargets = int(random.uniform(2,4))
@@ -255,11 +256,11 @@ def main():
             #picking the starting point of the target randomly 
             x_axis = int(random.uniform(51,1200))
             y_axis = int(random.uniform(150,500))
-            Target(1, x_axis, y_axis, vel, vel, TARGET_RADIUS) 
+            Target(x_axis, y_axis, vel, vel, TARGET_RADIUS) 
         return totalTargets
     totalTargets = generateTargets()
 
-    UserTank(PLAYER_TEAM, SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
+    UserTank(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
 
     while not done:
         clock.tick(30)
