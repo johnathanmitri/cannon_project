@@ -36,10 +36,10 @@ def main():
     gameObjects = []
 
     #Declaring the variable names of the images used in the program
-    targetImage = pg.image.load("week13/Target.png")
-    userTankImage = pg.image.load("week13/userTank.png")
-    algorithmTankImage = pg.image.load("week13/algorithmTankImage.png")
-    explosionImage = pg.image.load("week13/explosion.png")
+    targetImage = pg.image.load("Target.png")
+    userTankImage = pg.image.load("userTank.png")
+    algorithmTankImage = pg.image.load("algorithmTankImage.png")
+    explosionImage = pg.image.load("explosion.png")
 
     PLAYER_TEAM = 0
     ENEMY_TEAM = 1
