@@ -1,23 +1,10 @@
 import pygame as pg
 import random 
-
+from my_colors import *
 
 def main():
     pg.init()
     pg.font.init()
-
-    WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
-    RED = (255, 0, 0)
-
-    BLUE = (0,0,255)
-    YELLOW = (255, 255, 0)
-    ORANGE = (255, 165, 0)
-    PURPLE = (160,32,240)
-    LIGHT_BLUE = (51,179,255)
-    DARK_BLUE = (73, 123, 217)
-    COLORS = [LIGHT_BLUE,BLUE,DARK_BLUE,PURPLE,WHITE]
-    USER_COLORS = [ORANGE, YELLOW]
 
     FONT = pg.font.SysFont("dejavusansmono", 25)
     global score
