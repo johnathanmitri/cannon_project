@@ -19,6 +19,9 @@ def main():
     COLORS = [LIGHT_BLUE,BLUE,DARK_BLUE,PURPLE,WHITE]
     USER_COLORS = [ORANGE, YELLOW]
 
+    FONT = pg.font.SysFont("dejavusansmono", 25)
+    global score
+    score = 0
 
     SCREEN_SIZE = (1280, 720)
     LOWER_BOUNDARY = 150
@@ -174,6 +177,9 @@ def main():
                     screen.blit(explosionImage, (self.x-TANK_HALF_WIDTH*2, self.y-TANK_HALF_HEIGHT*2))
                     gameObject.destroy()
                     self.destroy()
+                    global score
+                    if self.team == PLAYER_TEAM:
+                        score += 1
 
         def draw(self):
             if self.object == 1:
@@ -246,6 +252,10 @@ def main():
     while not done:
         clock.tick(30)
         screen.fill(BLACK)
+
+        score_board = (FONT.render("Score: {}".format(score), True, WHITE))
+        screen.blit(score_board, [10, 5])
+
         pg.event.get()
         for gameObject in gameObjects:
             gameObject.update()
