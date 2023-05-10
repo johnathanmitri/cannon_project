@@ -262,7 +262,7 @@ def main():
             gameObject.draw()
 
         keys=pg.key.get_pressed()
-        if keys[pg.K_q]:
+        if keys[pg.K_q] and keys[pg.K_LCTRL]:
             exit()
         if keys[pg.K_r]:
             main()
