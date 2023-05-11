@@ -10,10 +10,10 @@ FONT = pg.font.SysFont("dejavusansmono", 25)
 score = 0
 
 #Declaring the variable names of the images used in the program
-targetImage = pg.image.load("Target.png")
-userTankImage = pg.image.load("userTank.png")
-algorithmTankImage = pg.image.load("algorithmTankImage.png")
-explosionImage = pg.image.load("explosion.png")
+targetImage = pg.image.load("week13/Target.png")
+userTankImage = pg.image.load("week13/userTank.png")
+algorithmTankImage = pg.image.load("week13/algorithmTankImage.png")
+explosionImage = pg.image.load("week13/explosion.png")
 
 SCREEN_SIZE = (1280, 720)
 LOWER_BOUNDARY = 150
@@ -23,6 +23,8 @@ TARGET_RADIUS = 50
 targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2))
 TANK_HALF_WIDTH = 25
 TANK_HALF_HEIGHT = 50
+
+algorithmTankImage = pg.transform.scale(algorithmTankImage,(TANK_HALF_WIDTH*3, TANK_HALF_HEIGHT*2))
 userTankImage = pg.transform.scale(userTankImage, (TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
 explosionImage = pg.transform.scale(explosionImage, (TANK_HALF_WIDTH*5, TANK_HALF_HEIGHT*5))
 
@@ -112,15 +114,15 @@ class AlgorithmTank(Tank, Enemy):
         
     def draw(self):
         #*****cant use radius here because its not a circle 
-        screen.blit(algorithmTankImage, (self.x-self.radius, self.y-self.radius))
+        screen.blit(algorithmTankImage, (self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT))
     def update(self):
-        #if pg.time.get_ticks() % 3000 == 0: # shoot every three seconds for now'''
+        #if pg.time.get_ticks() % 3000 == 0: # shoot every three seconds for now
         pass
     def moveTo(self):
         #this function moves the tank to a location such that it has a direct shot at the projectile 
         return super().move()
     def attack(self):
-        return super().attack()
+        Projectile(self.team, self.x, self.y, 0, 10, 5)
 
 class UserTank(Tank):
     def __init__(self, x, y):
@@ -188,6 +190,7 @@ class Projectile(GameObject):
             value = random.randint(0,1)
             pg.draw.ellipse(screen, USER_COLORS[value], rect=(self.x,self.y+2,11,16))
             pg.draw.ellipse(screen, RED, rect=(self.x,self.y,11,9))
+         
 
 '''class Bombs(Projectile):
 
@@ -245,6 +248,8 @@ def initializeGame():
     gameObjects.clear()
     global totalTargets
     totalTargets = generateTargets()
+    
+    AlgorithmTank(SCREEN_SIZE[0]/2, 70)
     UserTank(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
 
 initializeGame()
