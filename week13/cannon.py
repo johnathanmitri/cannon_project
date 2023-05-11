@@ -109,6 +109,10 @@ class Target(Enemy):
 
         if frameCounter % 90 == 0: # shoot every three seconds for now
             self.attack()
+    def destroy(self):
+        super().destroy()
+        global score
+        score+=1
 
         '''FIX THIS LATER!!!!!!!'''
     def getCollisionRect(self):
@@ -230,9 +234,6 @@ class Projectile(GameObject):
                     screen.blit(explosionImage, (self.x-TANK_HALF_WIDTH*2, self.y-TANK_HALF_HEIGHT*2))
                     gameObject.destroy()
                     self.destroy()
-                    global score
-                    if self.team == PLAYER_TEAM:
-                        score += 1
 
     def draw(self):
         if self.object == 1:
