@@ -10,10 +10,10 @@ FONT = pg.font.SysFont("dejavusansmono", 25)
 score = 0
 
 #Declaring the variable names of the images used in the program
-targetImage = pg.image.load("week13/Target.png")
-userTankImage = pg.image.load("week13/userTank.png")
-algorithmTankImage = pg.image.load("week13/algorithmTankImage.png")
-explosionImage = pg.image.load("week13/explosion.png")
+targetImage = pg.image.load("Target.png")
+userTankImage = pg.image.load("userTank.png")
+algorithmTankImage = pg.image.load("algorithmTankImage.png")
+explosionImage = pg.image.load("explosion.png")
 
 SCREEN_SIZE = (1280, 720)
 LOWER_BOUNDARY = 150
@@ -24,7 +24,10 @@ targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2)
 TANK_HALF_WIDTH = 25
 TANK_HALF_HEIGHT = 50
 
-algorithmTankImage = pg.transform.scale(algorithmTankImage,(TANK_HALF_WIDTH*3, TANK_HALF_HEIGHT*2))
+ALGORITHM_TANK_HALF_WIDTH = 37.5
+ALGORITHM_TANK_HALF_HEIGHT = 50
+
+algorithmTankImage = pg.transform.scale(algorithmTankImage,(ALGORITHM_TANK_HALF_WIDTH*2, ALGORITHM_TANK_HALF_HEIGHT*2))
 userTankImage = pg.transform.scale(userTankImage, (TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
 explosionImage = pg.transform.scale(explosionImage, (TANK_HALF_WIDTH*5, TANK_HALF_HEIGHT*5))
 
@@ -36,6 +39,7 @@ clock = pg.time.Clock()
 frameCounter = 0
 totalTargets = 0
 gameObjects = []
+bullets = []
 
 PLAYER_TEAM = 0
 ENEMY_TEAM = 1
@@ -111,7 +115,55 @@ class Target(Enemy):
         return pg.Rect(self.x-self.radius,self.y-self.radius,self.radius*2, self.radius*2) #pg.Rect(self.x - self.radius, self.y - self.radius, self.radius, self.radius) 
 
 class AlgorithmTank(Tank, Enemy):
-        
+    def __init__(self, x, y):
+        super().__init__(x,y)
+    
+    def draw(self):
+        screen.blit(algorithmTankImage, (self.x - TANK_HALF_WIDTH, self.y - TANK_HALF_HEIGHT))#, TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
+    
+    def shootAt(self, x, y, bulletSpeed, projectile):
+        for object in gameObject:
+            if isinstance(object, Projectile) and (object.team == PLAYER_TEAM):
+
+                object_x = object.x
+                object_y = object.y
+
+                
+
+                #Calculating the direction the projectile is in 
+                dirX = object_x - self.x
+                dirY = object_y - self.y
+
+                #Someone Check my Physics/Math here
+                magnitude = (dirX ** 2 + dirY ** 2) ** 0.5
+                dirX = dirX / magnitude
+                dirY = dirY / magnitude
+
+                velocity_x = dirX * bulletSpeed
+                velocity_y = dirY * bulletSpeed
+                Bullet(self.team, self.x, self.y, velocity_x, velocity_y, 5, 2)
+
+                break 
+
+#def attack(self):
+    
+    def update(self): #moves to dodge and shoots at projectiles(x,y)location
+        #make the tank move to dodge the first projectile released and then to shoot at it
+        #if no projectile is left then make it shoot at the user tank by taking in its position
+        #then go back and check for newer projectiles again 
+        pass
+
+    def attack(self):
+        Bullet(self.team, self.x, self.y, 0, 10, 5)
+#def getCollisionRect(self):
+    def getCollisionRect(self):
+        # in order to ignore the blank space from the front of the tank up to the tip of the gun
+        ignoreTopPixelCount = 20
+        return pg.Rect(self.x-ALGORITHM_TANK_HALF_WIDTH, self.y-ALGORITHM_TANK_HALF_HEIGHT, ALGORITHM_TANK_HALF_WIDTH*2, ALGORITHM_TANK_HALF_HEIGHT*2-ignoreTopPixelCount)
+
+
+
+    '''
     def draw(self):
         #*****cant use radius here because its not a circle 
         screen.blit(algorithmTankImage, (self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT))
@@ -123,8 +175,8 @@ class AlgorithmTank(Tank, Enemy):
         return super().move()
     def attack(self):
         Projectile(self.team, self.x, self.y, 0, 10, 5)
-
-class UserTank(Tank):
+'''
+class UserTank(Tank): 
     def __init__(self, x, y):
         super().__init__(PLAYER_TEAM,x,y)
         self.lastTimeShot = 0
@@ -190,7 +242,32 @@ class Projectile(GameObject):
             value = random.randint(0,1)
             pg.draw.ellipse(screen, USER_COLORS[value], rect=(self.x,self.y+2,11,16))
             pg.draw.ellipse(screen, RED, rect=(self.x,self.y,11,9))
-         
+   
+class Bullet(Projectile):
+  
+    '''  
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.velocity_x = 0
+        self.velocity_y = 0
+        self.speed = 5
+        
+
+    def update(self):
+        self.x += self.velocity_x
+        self.y += self.velocity_y
+
+        #insert a condition here to check for collisions with targets
+    '''
+    def draw(self):
+        if self.object == 1:
+            value = random.randint(0,4)
+            pg.draw.circle(screen, COLORS[value], (self.x,self.y), self.radius)
+        else:
+            value = random.randint(0,1)
+            pg.draw.ellipse(screen, ALGORITHMTANK_COLORS[value], rect=(self.x,self.y+2,11,16))
+            pg.draw.ellipse(screen, WHITE, rect=(self.x,self.y,11,9))
 
 '''class Bombs(Projectile):
 
@@ -248,7 +325,6 @@ def initializeGame():
     gameObjects.clear()
     global totalTargets
     totalTargets = generateTargets()
-    
     AlgorithmTank(SCREEN_SIZE[0]/2, 70)
     UserTank(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
 
