@@ -125,36 +125,52 @@ class AlgorithmTank(Tank, Enemy):
     def draw(self):
         screen.blit(algorithmTankImage, (self.x - TANK_HALF_WIDTH, self.y - TANK_HALF_HEIGHT))#, TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
     
-    def shootAt(self, x, y, bulletSpeed, projectile):
-        for object in gameObject:
-            if isinstance(object, Projectile) and (object.team == PLAYER_TEAM):
+    #def moveTo(self,x):
+     #   self.moveX = x
 
-                object_x = object.x
-                object_y = object.y
+    def shootAt(self, x, y, bulletSpeed):
 
-                
+        #object_x = object.x
+        #object_y = object.y
 
-                #Calculating the direction the projectile is in 
-                dirX = object_x - self.x
-                dirY = object_y - self.y
+        #Calculating the direction the projectile is in 
+        dirX = x - self.x
+        dirY = y - self.y
 
-                #Someone Check my Physics/Math here
-                magnitude = (dirX ** 2 + dirY ** 2) ** 0.5
-                dirX = dirX / magnitude
-                dirY = dirY / magnitude
+        #Someone Check my Physics/Math here
+        magnitude = (dirX ** 2 + dirY ** 2) ** 0.5
+        dirX = dirX / magnitude
+        dirY = dirY / magnitude
 
-                velocity_x = dirX * bulletSpeed
-                velocity_y = dirY * bulletSpeed
-                Bullet(self.team, self.x, self.y, velocity_x, velocity_y, 5, 2)
+        velocity_x = dirX * bulletSpeed
+        velocity_y = dirY * bulletSpeed
+        Bullet(self.team, self.x, self.y, velocity_x, velocity_y, 5, 2)
 
-                break 
-
-#def attack(self):
     
     def update(self): #moves to dodge and shoots at projectiles(x,y)location
         #make the tank move to dodge the first projectile released and then to shoot at it
         #if no projectile is left then make it shoot at the user tank by taking in its position
         #then go back and check for newer projectiles again 
+        
+        super().update()
+        for object in gameObjects:
+            if isinstance(object, Projectile) and (object.team == PLAYER_TEAM):
+                if object.y < 300:
+                    if object.x < self.x and object.x >= self.x - ALGORITHM_TANK_HALF_WIDTH - 12:
+                        self.x += 15
+                    elif object.x >= self.x and object.x <= self.x + ALGORITHM_TANK_HALF_WIDTH + 12:
+                        self.x -= 15
+                break
+                '''if object.x >= self.x and object.x < self.x + ALGORITHM_TANK_HALF_WIDTH:
+                    self.x += 10
+                    break
+                elif object.x >= self.x + ALGORITHM_TANK_HALF_WIDTH and object.x < self.x + 2*ALGORITHM_TANK_HALF_WIDTH:
+                    self.x -= 10
+                    break'''
+
+
+        if frameCounter % 60 == 0: # shoot every three seconds for now
+            self.shootAt(SCREEN_SIZE[0], SCREEN_SIZE[1], 20)
         pass
 
     def attack(self):
