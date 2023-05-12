@@ -337,7 +337,7 @@ def generateTargets():
     
 def initializeGame():
     global frameCounter
-    frameCounter = 0
+    frameCounter = 30
     global score
     score = 0
     gameObjects.clear()
