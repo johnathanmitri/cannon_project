@@ -6,6 +6,7 @@ pg.init()
 pg.font.init()
 
 FONT = pg.font.SysFont("dejavusansmono", 25)
+GAME_OVER_FONT = pg.font.SysFont("dejavusansmono", 75)
 #global score
 score = 0
 
@@ -123,7 +124,7 @@ class AlgorithmTank(Tank, Enemy):
         super().__init__(x,y)
     
     def draw(self):
-        screen.blit(algorithmTankImage, (self.x - TANK_HALF_WIDTH, self.y - TANK_HALF_HEIGHT))#, TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
+        screen.blit(algorithmTankImage, (self.x - ALGORITHM_TANK_HALF_WIDTH, self.y - ALGORITHM_TANK_HALF_HEIGHT))#, TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
     
     #def moveTo(self,x):
      #   self.moveX = x
@@ -144,7 +145,7 @@ class AlgorithmTank(Tank, Enemy):
 
         velocity_x = dirX * bulletSpeed
         velocity_y = dirY * bulletSpeed
-        Bullet(self.team, self.x, self.y, velocity_x, velocity_y, 5, 2)
+        Bullet(self.team, self.x, self.y, velocity_x, velocity_y, 6, 2)
 
     
     def update(self): #moves to dodge and shoots at projectiles(x,y)location
@@ -161,20 +162,11 @@ class AlgorithmTank(Tank, Enemy):
                     elif object.x >= self.x and object.x <= self.x + ALGORITHM_TANK_HALF_WIDTH + 12:
                         self.x -= 15
                 break
-                '''if object.x >= self.x and object.x < self.x + ALGORITHM_TANK_HALF_WIDTH:
-                    self.x += 10
-                    break
-                elif object.x >= self.x + ALGORITHM_TANK_HALF_WIDTH and object.x < self.x + 2*ALGORITHM_TANK_HALF_WIDTH:
-                    self.x -= 10
-                    break'''
-
 
         if frameCounter % 60 == 0: # shoot every three seconds for now
             self.shootAt(userTank.x, userTank.y, 20)
         pass
 
-    def attack(self):
-        Bullet(self.team, self.x, self.y, 0, 10, 5)
 #def getCollisionRect(self):
     def getCollisionRect(self):
         # in order to ignore the blank space from the front of the tank up to the tip of the gun
@@ -223,6 +215,10 @@ class UserTank(Tank):
         ignoreTopPixelCount = (150/500) * (TANK_HALF_HEIGHT * 2)
         return pg.Rect(self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT+ignoreTopPixelCount, TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2-ignoreTopPixelCount)
 
+    def destroy(self):
+        super().destroy()
+        global gameOver
+        gameOver = True
 
 class Projectile(GameObject):
 
@@ -263,29 +259,14 @@ class Projectile(GameObject):
    
 class Bullet(Projectile):
   
-    '''  
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.velocity_x = 0
-        self.velocity_y = 0
-        self.speed = 5
-        
-
-    def update(self):
-        self.x += self.velocity_x
-        self.y += self.velocity_y
-
-        #insert a condition here to check for collisions with targets
-    '''
-    def draw(self):
+      def draw(self):
         if self.object == 1:
             value = random.randint(0,4)
             pg.draw.circle(screen, COLORS[value], (self.x,self.y), self.radius)
         else:
             value = random.randint(0,1)
-            pg.draw.ellipse(screen, ALGORITHMTANK_COLORS[value], rect=(self.x,self.y+2,11,16))
-            pg.draw.ellipse(screen, WHITE, rect=(self.x,self.y,11,9))
+            pg.draw.circle(screen, ALGORITHMTANK_COLORS[value], (self.x,self.y+7), self.radius)
+            pg.draw.circle(screen, WHITE, (self.x,self.y), self.radius)
 
 '''class Bombs(Projectile):
 
@@ -346,6 +327,8 @@ def initializeGame():
     AlgorithmTank(SCREEN_SIZE[0]/2, 70)
     global userTank
     userTank = UserTank(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
+    global gameOver
+    gameOver = False
 
 initializeGame()
 
@@ -362,14 +345,27 @@ while not done:
         if event.type == pg.QUIT:
                 exit()
               
-    # python stores references to objects in lists. we make a copy of the list, which is fast since they are just addresses.
-    # this is necessary so that when removing items from the list in update(), it doesn't mess up the order.
-    for gameObject in gameObjects.copy():
-        gameObject.update()
-        gameObject.draw()
+    if gameOver:
+        for gameObject in gameObjects.copy():
+            gameObject.draw()
+            game_over = (GAME_OVER_FONT.render("GAME OVER", True, WHITE, BLACK))
+            text_rect = game_over.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2))
+            screen.blit(game_over, text_rect)
 
-    if score == totalTargets:
-        totalTargets = totalTargets + generateTargets()
+            restart_text = (FONT.render("Press R to restart", True, WHITE, BLACK))
+            restart_text_rect = restart_text.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2+75))
+            screen.blit(restart_text, restart_text_rect)
+        
+    else:
+        # python stores references to objects in lists. we make a copy of the list, which is fast since they are just addresses.
+        # this is necessary so that when removing items from the list in update(), it doesn't mess up the order.
+        for gameObject in gameObjects.copy():
+            gameObject.update()
+            gameObject.draw()
+
+        if score == totalTargets:
+            totalTargets = totalTargets + generateTargets()
     pg.display.flip()
     frameCounter+=1
+
 pg.quit()
