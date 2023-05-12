@@ -60,7 +60,8 @@ class GameObject:
         self.y += self.vy
 
     def destroy(self):
-        gameObjects.remove(self)
+        if self in gameObjects:
+            gameObjects.remove(self)
 
     def getCollisionRect(self):
          # return the rect that is used to check collisions by the Project update class
@@ -97,7 +98,7 @@ class Target(Enemy):
         screen.blit(targetImage, (self.x-self.radius, self.y-self.radius))
 
     def attack(self):
-        Projectile(self.team, self.x, self.y, 0, 10, 5)
+        Projectile(self.team, self.x, self.y, 0, 10, 7)
 
     def update(self):
         super().update()
@@ -114,9 +115,8 @@ class Target(Enemy):
         global score
         score+=1
 
-        '''FIX THIS LATER!!!!!!!'''
     def getCollisionRect(self):
-        return pg.Rect(self.x-self.radius,self.y-self.radius,self.radius*2, self.radius*2) #pg.Rect(self.x - self.radius, self.y - self.radius, self.radius, self.radius) 
+        return pg.Rect(self.x-self.radius,self.y-self.radius,self.radius*2, self.radius*2) 
 
 class AlgorithmTank(Tank, Enemy):
     def __init__(self, x, y):
@@ -170,7 +170,7 @@ class AlgorithmTank(Tank, Enemy):
 
 
         if frameCounter % 60 == 0: # shoot every three seconds for now
-            self.shootAt(SCREEN_SIZE[0], SCREEN_SIZE[1], 20)
+            self.shootAt(userTank.x, userTank.y, 20)
         pass
 
     def attack(self):
@@ -252,13 +252,14 @@ class Projectile(GameObject):
                     self.destroy()
 
     def draw(self):
+        
         if self.object == 1:
             value = random.randint(0,4)
             pg.draw.circle(screen, COLORS[value], (self.x,self.y), self.radius)
         else:
             value = random.randint(0,1)
-            pg.draw.ellipse(screen, USER_COLORS[value], rect=(self.x,self.y+2,11,16))
-            pg.draw.ellipse(screen, RED, rect=(self.x,self.y,11,9))
+            pg.draw.circle(screen, USER_COLORS[value], (self.x,self.y+6), self.radius)
+            pg.draw.circle(screen, RED, (self.x,self.y), self.radius)
    
 class Bullet(Projectile):
   
@@ -343,7 +344,8 @@ def initializeGame():
     global totalTargets
     totalTargets = generateTargets()
     AlgorithmTank(SCREEN_SIZE[0]/2, 70)
-    UserTank(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
+    global userTank
+    userTank = UserTank(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
 
 initializeGame()
 
@@ -360,7 +362,9 @@ while not done:
         if event.type == pg.QUIT:
                 exit()
               
-    for gameObject in gameObjects:
+    # python stores references to objects in lists. we make a copy of the list, which is fast since they are just addresses.
+    # this is necessary so that when removing items from the list in update(), it doesn't mess up the order.
+    for gameObject in gameObjects.copy():
         gameObject.update()
         gameObject.draw()
 
