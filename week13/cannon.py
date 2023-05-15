@@ -31,6 +31,7 @@ ALGORITHM_TANK_HALF_HEIGHT = 50
 algorithmTankImage = pg.transform.scale(algorithmTankImage,(ALGORITHM_TANK_HALF_WIDTH*2, ALGORITHM_TANK_HALF_HEIGHT*2))
 userTankImage = pg.transform.scale(userTankImage, (TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
 explosionImage = pg.transform.scale(explosionImage, (TANK_HALF_WIDTH*5, TANK_HALF_HEIGHT*5))
+smallExplosionImage = pg.transform.scale(explosionImage, (50, 50))
 
 screen = pg.display.set_mode((SCREEN_SIZE))
 pg.display.set_caption("The gun of بغداد")
@@ -236,6 +237,10 @@ class Projectile(GameObject):
         super().update() # call parent update
         rect = self.getCollisionRect()
         if self.y > SCREEN_SIZE[1] or self.y < 0:
+            yPos = 10
+            if self.y > SCREEN_SIZE[1]:
+                yPos = SCREEN_SIZE[1] - 10
+            screen.blit(smallExplosionImage, (self.x-25, yPos-25))
             self.destroy()
         else:
             for gameObject in gameObjects:
