@@ -175,20 +175,6 @@ class AlgorithmTank(Tank, Enemy):
         return pg.Rect(self.x-ALGORITHM_TANK_HALF_WIDTH, self.y-ALGORITHM_TANK_HALF_HEIGHT, ALGORITHM_TANK_HALF_WIDTH*2, ALGORITHM_TANK_HALF_HEIGHT*2-ignoreTopPixelCount)
 
 
-
-    '''
-    def draw(self):
-        #*****cant use radius here because its not a circle 
-        screen.blit(algorithmTankImage, (self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT))
-    def update(self):
-        #if pg.time.get_ticks() % 3000 == 0: # shoot every three seconds for now
-        pass
-    def moveTo(self):
-        #this function moves the tank to a location such that it has a direct shot at the projectile 
-        return super().move()
-    def attack(self):
-        Projectile(self.team, self.x, self.y, 0, 10, 5)
-'''
 class UserTank(Tank): 
     def __init__(self, x, y):
         super().__init__(PLAYER_TEAM,x,y)
