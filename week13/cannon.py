@@ -1,341 +1,370 @@
-import numpy as np
 import pygame as pg
-from random import randint, gauss
+import random 
+from my_colors import *
 
 pg.init()
 pg.font.init()
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
+FONT = pg.font.SysFont("dejavusansmono", 25)
+GAME_OVER_FONT = pg.font.SysFont("dejavusansmono", 75)
+#global score
+score = 0
 
-SCREEN_SIZE = (800, 600)
+#Declaring the variable names of the images used in the program
+targetImage = pg.image.load("Target.png")
+userTankImage = pg.image.load("userTank.png")
+algorithmTankImage = pg.image.load("algorithmTankImage.png")
+explosionImage = pg.image.load("explosion.png")
 
+#Setting the sizes of the screen, the lower boundary for the targets to bounce off of, the widths and heights of the tanks and the radius of the targets.
+SCREEN_SIZE = (1280, 720)
+LOWER_BOUNDARY = 150
+TANK_SPACE = 150
 
-def rand_color():
-    return (randint(0, 255), randint(0, 255), randint(0, 255))
+TANK_HALF_WIDTH = 25
+TANK_HALF_HEIGHT = 50
+ALGORITHM_TANK_HALF_WIDTH = 37.5
+ALGORITHM_TANK_HALF_HEIGHT = 50
 
-class GameObject:
+TARGET_RADIUS = 50
 
-    def move(self):
-        pass
-    
-    def draw(self, screen):
-        pass  
+#Scaling the images that are being used in the game to fit our screen.
+targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2))
+algorithmTankImage = pg.transform.scale(algorithmTankImage,(ALGORITHM_TANK_HALF_WIDTH*2, ALGORITHM_TANK_HALF_HEIGHT*2))
+userTankImage = pg.transform.scale(userTankImage, (TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
+explosionImage = pg.transform.scale(explosionImage, (TANK_HALF_WIDTH*5, TANK_HALF_HEIGHT*5))
+smallExplosionImage = pg.transform.scale(explosionImage, (50, 50))
 
+#using pygame to create a window with the title 
+screen = pg.display.set_mode((SCREEN_SIZE))
+pg.display.set_caption("The gun of بغداد")
 
-class Shell(GameObject):
-    '''
-    The ball class. Creates a ball, controls it's movement and implement it's rendering.
-    '''
-    def __init__(self, coord, vel, rad=20, color=None):
-        '''
-        Constructor method. Initializes ball's parameters and initial values.
-        '''
-        self.coord = coord
-        self.vel = vel
-        if color == None:
-            color = rand_color()
-        self.color = color
-        self.rad = rad
-        self.is_alive = True
-
-    def check_corners(self, refl_ort=0.8, refl_par=0.9):
-        '''
-        Reflects ball's velocity when ball bumps into the screen corners. Implemetns inelastic rebounce.
-        '''
-        for i in range(2):
-            if self.coord[i] < self.rad:
-                self.coord[i] = self.rad
-                self.vel[i] = -int(self.vel[i] * refl_ort)
-                self.vel[1-i] = int(self.vel[1-i] * refl_par)
-            elif self.coord[i] > SCREEN_SIZE[i] - self.rad:
-                self.coord[i] = SCREEN_SIZE[i] - self.rad
-                self.vel[i] = -int(self.vel[i] * refl_ort)
-                self.vel[1-i] = int(self.vel[1-i] * refl_par)
-
-    def move(self, time=1, grav=0):
-        '''
-        Moves the ball according to it's velocity and time step.
-        Changes the ball's velocity due to gravitational force.
-        '''
-        self.vel[1] += grav
-        for i in range(2):
-            self.coord[i] += time * self.vel[i]
-        self.check_corners()
-        if self.vel[0]**2 + self.vel[1]**2 < 2**2 and self.coord[1] > SCREEN_SIZE[1] - 2*self.rad:
-            self.is_alive = False
-
-    def draw(self, screen):
-        '''
-        Draws the ball on appropriate surface.
-        '''
-        pg.draw.circle(screen, self.color, self.coord, self.rad)
-
-
-class Cannon(GameObject):
-    '''
-    Cannon class. Manages it's renderring, movement and striking.
-    '''
-    def __init__(self, coord=[30, SCREEN_SIZE[1]//2], angle=0, max_pow=50, min_pow=10, color=RED):
-        '''
-        Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
-        '''
-        self.coord = coord
-        self.angle = angle
-        self.max_pow = max_pow
-        self.min_pow = min_pow
-        self.color = color
-        self.active = False
-        self.pow = min_pow
-    
-    def activate(self):
-        '''
-        Activates gun's charge.
-        '''
-        self.active = True
-
-    def gain(self, inc=2):
-        '''
-        Increases current gun charge power.
-        '''
-        if self.active and self.pow < self.max_pow:
-            self.pow += inc
-
-    def strike(self):
-        '''
-        Creates ball, according to gun's direction and current charge power.
-        '''
-        vel = self.pow
-        angle = self.angle
-        ball = Shell(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
-        self.pow = self.min_pow
-        self.active = False
-        return ball
-        
-    def set_angle(self, target_pos):
-        '''
-        Sets gun's direction to target position.
-        '''
-        self.angle = np.arctan2(target_pos[1] - self.coord[1], target_pos[0] - self.coord[0])
-
-    def move(self, inc):
-        '''
-        Changes vertical position of the gun.
-        '''
-        if (self.coord[1] > 30 or inc > 0) and (self.coord[1] < SCREEN_SIZE[1] - 30 or inc < 0):
-            self.coord[1] += inc
-
-    def draw(self, screen):
-        '''
-        Draws the gun on the screen.
-        '''
-        gun_shape = []
-        vec_1 = np.array([int(5*np.cos(self.angle - np.pi/2)), int(5*np.sin(self.angle - np.pi/2))])
-        vec_2 = np.array([int(self.pow*np.cos(self.angle)), int(self.pow*np.sin(self.angle))])
-        gun_pos = np.array(self.coord)
-        gun_shape.append((gun_pos + vec_1).tolist())
-        gun_shape.append((gun_pos + vec_1 + vec_2).tolist())
-        gun_shape.append((gun_pos + vec_2 - vec_1).tolist())
-        gun_shape.append((gun_pos - vec_1).tolist())
-        pg.draw.polygon(screen, self.color, gun_shape)
-
-
-class Target(GameObject):
-    '''
-    Target class. Creates target, manages it's rendering and collision with a ball event.
-    '''
-    def __init__(self, coord=None, color=None, rad=30):
-        '''
-        Constructor method. Sets coordinate, color and radius of the target.
-        '''
-        if coord == None:
-            coord = [randint(rad, SCREEN_SIZE[0] - rad), randint(rad, SCREEN_SIZE[1] - rad)]
-        self.coord = coord
-        self.rad = rad
-
-        if color == None:
-            color = rand_color()
-        self.color = color
-
-    def check_collision(self, ball):
-        '''
-        Checks whether the ball bumps into target.
-        '''
-        dist = sum([(self.coord[i] - ball.coord[i])**2 for i in range(2)])**0.5
-        min_dist = self.rad + ball.rad
-        return dist <= min_dist
-
-    def draw(self, screen):
-        '''
-        Draws the target on the screen
-        '''
-        pg.draw.circle(screen, self.color, self.coord, self.rad)
-
-    def move(self):
-        """
-        This type of target can't move at all.
-        :return: None
-        """
-        pass
-
-class MovingTargets(Target):
-    def __init__(self, coord=None, color=None, rad=30):
-        super().__init__(coord, color, rad)
-        self.vx = randint(-2, +2)
-        self.vy = randint(-2, +2)
-    
-    def move(self):
-        self.coord[0] += self.vx
-        self.coord[1] += self.vy
-
-
-class ScoreTable:
-    '''
-    Score table class.
-    '''
-    def __init__(self, t_destr=0, b_used=0):
-        self.t_destr = t_destr
-        self.b_used = b_used
-        self.font = pg.font.SysFont("dejavusansmono", 25)
-
-    def score(self):
-        '''
-        Score calculation method.
-        '''
-        return self.t_destr - self.b_used
-
-    def draw(self, screen):
-        score_surf = []
-        score_surf.append(self.font.render("Destroyed: {}".format(self.t_destr), True, WHITE))
-        score_surf.append(self.font.render("Balls used: {}".format(self.b_used), True, WHITE))
-        score_surf.append(self.font.render("Total: {}".format(self.score()), True, RED))
-        for i in range(3):
-            screen.blit(score_surf[i], [10, 10 + 30*i])
-
-
-class Manager:
-    '''
-    Class that manages events' handling, ball's motion and collision, target creation, etc.
-    '''
-    def __init__(self, n_targets=1):
-        self.balls = []
-        self.gun = Cannon()
-        self.targets = []
-        self.score_t = ScoreTable()
-        self.n_targets = n_targets
-        self.new_mission()
-
-    def new_mission(self):
-        '''
-        Adds new targets.
-        '''
-        for i in range(self.n_targets):
-            self.targets.append(MovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
-                30 - max(0, self.score_t.score()))))
-            self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
-                30 - max(0, self.score_t.score()))))
-
-
-    def process(self, events, screen):
-        '''
-        Runs all necessary method for each iteration. Adds new targets, if previous are destroyed.
-        '''
-        done = self.handle_events(events)
-
-        if pg.mouse.get_focused():
-            mouse_pos = pg.mouse.get_pos()
-            self.gun.set_angle(mouse_pos)
-        
-        self.move()
-        self.collide()
-        self.draw(screen)
-
-        if len(self.targets) == 0 and len(self.balls) == 0:
-            self.new_mission()
-
-        return done
-
-    def handle_events(self, events):
-        '''
-        Handles events from keyboard, mouse, etc.
-        '''
-        done = False
-        for event in events:
-            if event.type == pg.QUIT:
-                done = True
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_UP:
-                    self.gun.move(-5)
-                elif event.key == pg.K_DOWN:
-                    self.gun.move(5)
-            elif event.type == pg.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    self.gun.activate()
-            elif event.type == pg.MOUSEBUTTONUP:
-                if event.button == 1:
-                    self.balls.append(self.gun.strike())
-                    self.score_t.b_used += 1
-        return done
-
-    def draw(self, screen):
-        '''
-        Runs balls', gun's, targets' and score table's drawing method.
-        '''
-        for ball in self.balls:
-            ball.draw(screen)
-        for target in self.targets:
-            target.draw(screen)
-        self.gun.draw(screen)
-        self.score_t.draw(screen)
-
-    def move(self):
-        '''
-        Runs balls' and gun's movement method, removes dead balls.
-        '''
-        dead_balls = []
-        for i, ball in enumerate(self.balls):
-            ball.move(grav=2)
-            if not ball.is_alive:
-                dead_balls.append(i)
-        for i in reversed(dead_balls):
-            self.balls.pop(i)
-        for i, target in enumerate(self.targets):
-            target.move()
-        self.gun.gain()
-
-    def collide(self):
-        '''
-        Checks whether balls bump into targets, sets balls' alive trigger.
-        '''
-        collisions = []
-        targets_c = []
-        for i, ball in enumerate(self.balls):
-            for j, target in enumerate(self.targets):
-                if target.check_collision(ball):
-                    collisions.append([i, j])
-                    targets_c.append(j)
-        targets_c.sort()
-        for j in reversed(targets_c):
-            self.score_t.t_destr += 1
-            self.targets.pop(j)
-
-
-screen = pg.display.set_mode(SCREEN_SIZE)
-pg.display.set_caption("The gun of Khiryanov")
-
+#Initializing the global variables which are used later 
 done = False
 clock = pg.time.Clock()
+frameCounter = 0
+totalTargets = 0
+gameObjects = []
+bullets = []
 
-mgr = Manager(n_targets=3)
+#Setting the teams to ints 0 and 1 which is used later to determine destruction of the gameObject on collision 
+PLAYER_TEAM = 0
+ENEMY_TEAM = 1
+
+#Making class Game Object that every class in the program is ultimately derived from
+class GameObject:
+        
+     #Constructor that initializes the instance variables
+    def __init__(self, team, x, y):
+        #Setting position of the object
+        self.x = x 
+        self.y = y
+        #Setting the objects velocity in x and y directions
+        self.vx = 0 
+        self.vy = 0
+        self.team = team #Initializing the objects team
+        gameObjects.append(self) #Adding the object to the list gameObjects to keep a track of the objects
+
+    #Updates the position of the object on the screen by adding the velocities
+    def update(self):
+        self.x += self.vx
+        self.y += self.vy
+
+    #This removes the object from the gameObject list 
+    def destroy(self):
+        if self in gameObjects:
+            gameObjects.remove(self)
+
+    def getCollisionRect(self):
+         # return the rect that is used to check collisions by the Project update class
+        pass
+
+    def move(self):
+        pass
+        
+    def draw(self):
+        pass  
+
+#Making class Tank that is parent to both User tank and Algorithm Tank
+class Tank(GameObject):
+
+    def shootAt(self, x, y, bulletSpeed):
+            #Shoots a tank shell in the direction of the position (x, y)
+            pass
+        
+#Making class Enemy that is parent to both the Targets and the Algorithm Tank
+class Enemy(GameObject):
+
+    def __init__(self,x,y):
+        super().__init__(ENEMY_TEAM, x, y) 
+    def attack(self):
+        pass
+
+#Making class Target that determines the behaviour of targets 
+class Target(Enemy):
+    def __init__(self, x, y, vx, vy, radius):
+        super().__init__(x, y)
+        self.vx = vx
+        self.vy = vy
+        self.radius = radius
+    
+    def draw(self): #Function to draw the target to the screen
+        screen.blit(targetImage, (self.x-self.radius, self.y-self.radius))
+
+    #Function that makes the bombs drop out of the targets to attack the User tank 
+    def attack(self):
+        Projectile(self.team, self.x, self.y, 0, 10, 7)
+
+    #Function that updates the location of the target  
+    def update(self):
+        super().update()
+        # Make target bounce off of their boundaries when they hit the boundaries so they dont leave the screen
+        if self.x <= TARGET_RADIUS or self.x >= (SCREEN_SIZE[0] - TARGET_RADIUS):
+            self.vx = -self.vx #Reversing the direction of the target
+        if self.y <= TANK_SPACE or self.y >= (SCREEN_SIZE[1] - LOWER_BOUNDARY):
+            self.vy = -self.vy #Reversing the direction of the target 
+
+        if frameCounter % 90 == 0: # Shoots bombs every three seconds 
+            self.attack()
+
+    def destroy(self):
+        super().destroy() #destroys the target 
+        global score
+        score+=1 #When the target gets destroyed user score is incremeanted by 1 
+
+    def getCollisionRect(self): #Sets the area in which collison gets detected in
+        return pg.Rect(self.x-self.radius,self.y-self.radius,self.radius*2, self.radius*2) 
+
+#Making class Algorithm tank that is a child of both Class Tank and class Enemy
+class AlgorithmTank(Tank, Enemy):
+    def __init__(self, x, y):
+        super().__init__(x,y)
+    
+    def draw(self): #Function to draw the target to the screen
+        screen.blit(algorithmTankImage, (self.x - ALGORITHM_TANK_HALF_WIDTH, self.y - ALGORITHM_TANK_HALF_HEIGHT))#, TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
+
+    def shootAt(self, x, y, bulletSpeed):
+
+        #Calculating the direction the projectile is in 
+        dirX = x - self.x
+        dirY = y - self.y
+
+        #Taking squareroot of the sum of the squares of direction X and direction y
+        magnitude = (dirX ** 2 + dirY ** 2) ** 0.5
+        dirX = dirX / magnitude #Finds the x component
+        dirY = dirY / magnitude #Finds the y component
+
+        velocity_x = dirX * bulletSpeed #velocity in x direction = x component * speed
+        velocity_y = dirY * bulletSpeed #velocity in y direction = y component * speed
+        #Sends a bullet to the position calculated
+        Bullet(self.team, self.x, self.y, velocity_x, velocity_y, 6, 2)
+
+    
+    def update(self): #moves to dodge projectiles from the user
+        super().update()
+        for object in gameObjects:
+            if isinstance(object, Projectile) and (object.team == PLAYER_TEAM): #If statement to check for if the object is a projectile and from the users team(PLAYER_TEAM)
+                if object.y < 300: #If statement to check if it is close enough to hit the algorithm tank
+                    if object.x < self.x and object.x >= self.x - ALGORITHM_TANK_HALF_WIDTH - 12: #If statement to check if it is between the center and the left end of the tank
+                        self.x += 15 #Dodges to the right by 15 
+                    elif object.x >= self.x and object.x <= self.x + ALGORITHM_TANK_HALF_WIDTH + 12:#If statement to check if it is between the center and the right end of the tank
+                        self.x -= 15 #Dodges to the left by 15
+                break
+
+        if frameCounter % 60 == 0: # Shoots every two seconds 
+            self.shootAt(userTank.x, userTank.y, 20)
+        pass
+
+    def getCollisionRect(self):
+        ignoreTopPixelCount = 20 # Variable to ignore the blank space from the front of the tank up to the tip of the gun
+        #Sets the area in which collison gets detected in
+        return pg.Rect(self.x-ALGORITHM_TANK_HALF_WIDTH, self.y-ALGORITHM_TANK_HALF_HEIGHT, ALGORITHM_TANK_HALF_WIDTH*2, ALGORITHM_TANK_HALF_HEIGHT*2-ignoreTopPixelCount)
+
+class UserTank(Tank): 
+    def __init__(self, x, y):
+        super().__init__(PLAYER_TEAM,x,y)
+        self.lastTimeShot = 0 #this code initializes an instance of the UserTank class with specified coordinates (x and y)
+            
+    def update(self):
+        keys=pg.key.get_pressed() #keyboard inputs and updates the tank's position based on the left and right arrow keys. It also allows the tank to shoot projectiles at a specified rate.
+
+        if keys[pg.K_LEFT]:
+            if (self.x-TANK_HALF_WIDTH > 10):
+                self.x-=10
+        if keys[pg.K_RIGHT]:
+            if (self.x+TANK_HALF_WIDTH < SCREEN_SIZE[0]-10):
+                self.x+=10
+        if keys[pg.K_SPACE]:
+            if frameCounter-self.lastTimeShot >= 15:
+                self.lastTimeShot = frameCounter
+                Projectile(self.team, self.x, self.y, 0, -10, 5, object = 2)
+                
+    def draw(self):
+        screen.blit(userTankImage, (self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT))
+        
+    def getCollisionRect(self):
+        # in order to ignore the blank space from the front of the tank up to the tip of the gun
+        ignoreTopPixelCount = (150/500) * (TANK_HALF_HEIGHT * 2)
+        return pg.Rect(self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT+ignoreTopPixelCount, TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2-ignoreTopPixelCount)
+
+    def destroy(self): #ends the game if user gets destroyed 
+        super().destroy()
+        global gameOver
+        gameOver = True
+
+class Projectile(GameObject): #projectile class with methods for initialization, collision detection, updating the projectile's state, and drawing it on the screen.
+
+    def __init__(self, team, x, y, vx, vy, radius, object = 1):
+        super().__init__(team, x,y) #coordinates and velocities for teams and object type
+        self.vx = vx
+        self.vy = vy
+        self.radius = radius
+        self.object = object
+
+    def getCollisionRect(self):
+        return pg.Rect(self.x - self.radius, self.y - self.radius, self.radius*2, self.radius*2)
+		#collision detection between instances of this class and other objects in a game
+    def update(self):
+        super().update() 
+        # call parent update
+        rect = self.getCollisionRect() 
+        # calls collision rectangle
+        if self.y > SCREEN_SIZE[1] or self.y < 0: 
+            yPos = 10
+            # If it is either greater than the screen height (SCREEN_SIZE[1]) or less than 0, the code inside this block is executed.
+            if self.y > SCREEN_SIZE[1]:
+                yPos = SCREEN_SIZE[1] - 10
+            screen.blit(smallExplosionImage, (self.x-25, yPos-25))
+            self.destroy()
+        else: #a loop that iterates over gameObjects, which is likely a list of other game objects.
+            for gameObject in gameObjects:
+                if gameObject == self or gameObject.team == self.team:
+                    continue
+                #This condition checks if the current gameObject is the same instance as self or if they belong to the same team.
+
+                if rect.colliderect(gameObject.getCollisionRect()):
+                    screen.blit(explosionImage, (self.x-TANK_HALF_WIDTH*2, self.y-TANK_HALF_HEIGHT*2))
+                    gameObject.destroy()
+                    self.destroy()
+					#If a collision is detected, it displays an explosion image, destroys the colliding game object (gameObject), and destroys the current instance itself.
+    def draw(self): 
+        #method is responsible for rendering the current instance on the screen
+        if self.object == 1:
+            value = random.randint(0,4)
+            pg.draw.circle(screen, COLORS[value], (self.x,self.y), self.radius)
+        else:
+            value = random.randint(0,1)
+            pg.draw.circle(screen, USER_COLORS[value], (self.x,self.y+6), self.radius)
+            pg.draw.circle(screen, RED, (self.x,self.y), self.radius)
+			#Depending on the object attribute of the instance, it either draws a single colored circle or a combination of two concentric circles.
+class Bullet(Projectile):
+	#class inherits from the Projectile class and overrides the draw
+      def draw(self):
+        if self.object == 1:
+            value = random.randint(0,4)
+            pg.draw.circle(screen, COLORS[value], (self.x,self.y), self.radius)
+            #method to provide specific drawing behavior for bullets.
+        else:
+            value = random.randint(0,1)
+            pg.draw.circle(screen, ALGORITHMTANK_COLORS[value], (self.x,self.y+7), self.radius)
+            pg.draw.circle(screen, WHITE, (self.x,self.y), self.radius)
+			#method randomly chooses colors based on conditions and draws circles on the screen accordingly.
+def generateTargets():
+    totalTargets = 0
+    #Deciding the number of targets randomly to be between 7 - 10 targets
+    numOfTargets = int(random.uniform(7,10))
+
+    #Loops for having a random starting point and velocities for all the targets
+
+    #Making random number of targets (between 2-4) that move horizontally
+    numOfTargets = int(random.uniform(2,4))
+    totalTargets = totalTargets + numOfTargets + 1
+    for targets in range(numOfTargets + 1):
+        #picking the velocity of each target randomly between -10 to -5 and 5 to 10
+        vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
+        #picking the starting point of the target randomly 
+        x_axis = int(random.uniform(51,1200))
+        y_axis = int(random.uniform(150,500))
+        Target(x_axis, y_axis, vel, 0, TARGET_RADIUS)
+
+    #Making random number of targets (between 2-4) that move vertically
+    numOfTargets = int(random.uniform(2,4))
+    totalTargets = totalTargets + numOfTargets + 1
+    for targets in range(numOfTargets + 1):
+        
+        #picking the velocity of each target randomly between -10 to -5 and 5 to 10
+        vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
+        
+        #picking the starting point of the target randomly 
+        x_axis = int(random.uniform(51,1200))
+        y_axis = int(random.uniform(150,500))
+        Target(x_axis, y_axis, 0, vel, TARGET_RADIUS) #Moves target vertically
+
+    #Making random number of targets (between 2-4) that move diagonally
+    numOfTargets = int(random.uniform(2,4))
+    totalTargets = totalTargets + numOfTargets + 1
+    for targets in range(numOfTargets + 1):
+        
+        #picking the velocity of each target randomly between -10 to -5 and 5 to 10
+        vel = random.choice([-10, -9, -8, -7, -6, -5, 5, 6, 7, 8, 9, 10])
+        
+        #picking the starting point of the target randomly 
+        x_axis = int(random.uniform(51,1200))
+        y_axis = int(random.uniform(150,500))
+        Target(x_axis, y_axis, vel, vel, TARGET_RADIUS) 
+    return totalTargets
+    
+def initializeGame(): 
+    global frameCounter 
+    frameCounter = 30
+    global score #variable for score 
+    score = 0 #score set to 0
+    gameObjects.clear()
+    global totalTargets
+    totalTargets = generateTargets()
+    AlgorithmTank(SCREEN_SIZE[0]/2, 70) #lass and initializes it with the x-coordinate SCREEN_SIZE[0]/2 and y-coordinate 70
+    global userTank
+    userTank = UserTank(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
+    global gameOver
+    gameOver = False
+	#function sets up initial variables and game objects, including the frame counter, score, target count, tanks, and game over status.
+initializeGame()
 
 while not done:
-    clock.tick(15)
-    screen.fill(BLACK)
+    clock.tick(30) #This line limits the frame rate to 30 frames per second. It ensures that the loop doesn't execute more frequently than the specified frame rate.
+    screen.fill(BLACK) #fills the screen with a black color
+    score_board = (FONT.render("Score: {}".format(score), True, WHITE))
+    screen.blit(score_board, [10, 5])
+    events = pg.event.get()
+    for event in events:
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_r: # restart is handled as KEYDOWN event so that it only runs once per click, instead of repeating as long as R is held. 
+                initializeGame()
+        if event.type == pg.QUIT:
+                exit()
+              #continuously processes events, updates the game state, and handles specific events such as key presses ('R' key) for game restart and quit events to exit the program
+    if gameOver:
+        for gameObject in gameObjects.copy():
+            gameObject.draw()
+            game_over = (GAME_OVER_FONT.render("GAME OVER", True, WHITE, BLACK))
+            text_rect = game_over.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2))
+            screen.blit(game_over, text_rect)
+			#when the game is over, this code snippet iterates over the game objects, draws them on the screen, and displays the "GAME OVER"
+            restart_text = (FONT.render("Press R to restart", True, WHITE, BLACK))
+            restart_text_rect = restart_text.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2+75))
+            screen.blit(restart_text, restart_text_rect)
+			#renders and displays the "Press R to restart" message on the screen. It utilizes text surfaces and blitting to render the message with the specified color and position.
+    else:
+        # python stores references to objects in lists. we make a copy of the list, which is fast since they are just addresses.
+        # this is necessary so that when removing items from the list in update(), it doesn't mess up the order.
+        for gameObject in gameObjects.copy():
+            gameObject.update()
+            gameObject.draw()
 
-    done = mgr.process(pg.event.get(), screen)
-
+        if score == totalTargets: #This condition checks if the current score is equal to the total number of targets.
+            totalTargets = totalTargets + generateTargets()
+            #This line increments the totalTargets variable by generating a new set of targets using the generateTargets() function
     pg.display.flip()
-
-
+    frameCounter+=1
+	#if the score matches the total number of targets, and if so, generates additional targets. 
 pg.quit()
