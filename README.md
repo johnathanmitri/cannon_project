@@ -1,4 +1,4 @@
-# python_programming_class
+# CS 2520 Final Project
 Python for programmers class
 Group Members: Marc Cruz, Prerna Joshi, Johnathan Mitri, and Zack Wawi
 
