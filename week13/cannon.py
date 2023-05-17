@@ -192,10 +192,10 @@ class AlgorithmTank(Tank, Enemy):
 class UserTank(Tank): 
     def __init__(self, x, y):
         super().__init__(PLAYER_TEAM,x,y)
-        self.lastTimeShot = 0
+        self.lastTimeShot = 0 #this code initializes an instance of the UserTank class with specified coordinates (x and y)
             
     def update(self):
-        keys=pg.key.get_pressed()
+        keys=pg.key.get_pressed() #keyboard inputs and updates the tank's position based on the left and right arrow keys. It also allows the tank to shoot projectiles at a specified rate.
 
         if keys[pg.K_LEFT]:
             if (self.x-TANK_HALF_WIDTH > 10):
@@ -216,15 +216,15 @@ class UserTank(Tank):
         ignoreTopPixelCount = (150/500) * (TANK_HALF_HEIGHT * 2)
         return pg.Rect(self.x-TANK_HALF_WIDTH, self.y-TANK_HALF_HEIGHT+ignoreTopPixelCount, TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2-ignoreTopPixelCount)
 
-    def destroy(self):
+    def destroy(self): #ends the game if user gets destroyed 
         super().destroy()
         global gameOver
         gameOver = True
 
-class Projectile(GameObject):
+class Projectile(GameObject): #projectile class with methods for initialization, collision detection, updating the projectile's state, and drawing it on the screen.
 
     def __init__(self, team, x, y, vx, vy, radius, object = 1):
-        super().__init__(team, x,y)
+        super().__init__(team, x,y) #coordinates and velocities for teams and object type
         self.vx = vx
         self.vy = vy
         self.radius = radius
@@ -232,28 +232,32 @@ class Projectile(GameObject):
 
     def getCollisionRect(self):
         return pg.Rect(self.x - self.radius, self.y - self.radius, self.radius*2, self.radius*2)
-
+		#collision detection between instances of this class and other objects in a game
     def update(self):
-        super().update() # call parent update
-        rect = self.getCollisionRect()
-        if self.y > SCREEN_SIZE[1] or self.y < 0:
+        super().update() 
+        # call parent update
+        rect = self.getCollisionRect() 
+        # calls collision rectangle
+        if self.y > SCREEN_SIZE[1] or self.y < 0: 
             yPos = 10
+            # If it is either greater than the screen height (SCREEN_SIZE[1]) or less than 0, the code inside this block is executed.
             if self.y > SCREEN_SIZE[1]:
                 yPos = SCREEN_SIZE[1] - 10
             screen.blit(smallExplosionImage, (self.x-25, yPos-25))
             self.destroy()
-        else:
+        else: #a loop that iterates over gameObjects, which is likely a list of other game objects.
             for gameObject in gameObjects:
                 if gameObject == self or gameObject.team == self.team:
                     continue
+                #This condition checks if the current gameObject is the same instance as self or if they belong to the same team.
 
                 if rect.colliderect(gameObject.getCollisionRect()):
                     screen.blit(explosionImage, (self.x-TANK_HALF_WIDTH*2, self.y-TANK_HALF_HEIGHT*2))
                     gameObject.destroy()
                     self.destroy()
-
-    def draw(self):
-        
+					#If a collision is detected, it displays an explosion image, destroys the colliding game object (gameObject), and destroys the current instance itself.
+    def draw(self): 
+        #method is responsible for rendering the current instance on the screen
         if self.object == 1:
             value = random.randint(0,4)
             pg.draw.circle(screen, COLORS[value], (self.x,self.y), self.radius)
@@ -261,21 +265,19 @@ class Projectile(GameObject):
             value = random.randint(0,1)
             pg.draw.circle(screen, USER_COLORS[value], (self.x,self.y+6), self.radius)
             pg.draw.circle(screen, RED, (self.x,self.y), self.radius)
-   
+			#Depending on the object attribute of the instance, it either draws a single colored circle or a combination of two concentric circles.
 class Bullet(Projectile):
-  
+	#class inherits from the Projectile class and overrides the draw
       def draw(self):
         if self.object == 1:
             value = random.randint(0,4)
             pg.draw.circle(screen, COLORS[value], (self.x,self.y), self.radius)
+            #method to provide specific drawing behavior for bullets.
         else:
             value = random.randint(0,1)
             pg.draw.circle(screen, ALGORITHMTANK_COLORS[value], (self.x,self.y+7), self.radius)
             pg.draw.circle(screen, WHITE, (self.x,self.y), self.radius)
-
-'''class Bombs(Projectile):
-
-'''
+			#method randomly chooses colors based on conditions and draws circles on the screen accordingly.
 def generateTargets():
     totalTargets = 0
     #Deciding the number of targets randomly to be between 7 - 10 targets
@@ -321,25 +323,25 @@ def generateTargets():
         Target(x_axis, y_axis, vel, vel, TARGET_RADIUS) 
     return totalTargets
     
-def initializeGame():
-    global frameCounter
+def initializeGame(): 
+    global frameCounter 
     frameCounter = 30
-    global score
-    score = 0
+    global score #variable for score 
+    score = 0 #score set to 0
     gameObjects.clear()
     global totalTargets
     totalTargets = generateTargets()
-    AlgorithmTank(SCREEN_SIZE[0]/2, 70)
+    AlgorithmTank(SCREEN_SIZE[0]/2, 70) #lass and initializes it with the x-coordinate SCREEN_SIZE[0]/2 and y-coordinate 70
     global userTank
     userTank = UserTank(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]-70)
     global gameOver
     gameOver = False
-
+	#function sets up initial variables and game objects, including the frame counter, score, target count, tanks, and game over status.
 initializeGame()
 
 while not done:
-    clock.tick(30)
-    screen.fill(BLACK)
+    clock.tick(30) #This line limits the frame rate to 30 frames per second. It ensures that the loop doesn't execute more frequently than the specified frame rate.
+    screen.fill(BLACK) #fills the screen with a black color
     score_board = (FONT.render("Score: {}".format(score), True, WHITE))
     screen.blit(score_board, [10, 5])
     events = pg.event.get()
@@ -349,18 +351,18 @@ while not done:
                 initializeGame()
         if event.type == pg.QUIT:
                 exit()
-              
+              #continuously processes events, updates the game state, and handles specific events such as key presses ('R' key) for game restart and quit events to exit the program
     if gameOver:
         for gameObject in gameObjects.copy():
             gameObject.draw()
             game_over = (GAME_OVER_FONT.render("GAME OVER", True, WHITE, BLACK))
             text_rect = game_over.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2))
             screen.blit(game_over, text_rect)
-
+			#when the game is over, this code snippet iterates over the game objects, draws them on the screen, and displays the "GAME OVER"
             restart_text = (FONT.render("Press R to restart", True, WHITE, BLACK))
             restart_text_rect = restart_text.get_rect(center=(SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2+75))
             screen.blit(restart_text, restart_text_rect)
-        
+			#renders and displays the "Press R to restart" message on the screen. It utilizes text surfaces and blitting to render the message with the specified color and position.
     else:
         # python stores references to objects in lists. we make a copy of the list, which is fast since they are just addresses.
         # this is necessary so that when removing items from the list in update(), it doesn't mess up the order.
@@ -368,9 +370,10 @@ while not done:
             gameObject.update()
             gameObject.draw()
 
-        if score == totalTargets:
+        if score == totalTargets: #This condition checks if the current score is equal to the total number of targets.
             totalTargets = totalTargets + generateTargets()
+            #This line increments the totalTargets variable by generating a new set of targets using the generateTargets() function
     pg.display.flip()
     frameCounter+=1
-
+	#if the score matches the total number of targets, and if so, generates additional targets. 
 pg.quit()
