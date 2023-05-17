@@ -38,3 +38,4 @@ List of what we did:
 7) And finally we have functions for initializing the game(initializeGame()) and generating targets(generateTargets()) as the 2 functions that are outside of these classes which are being called to run the game. 
 
 Link to cannon.py:
+https://github.com/johnathanmitri/cannon_project/tree/main/week13
