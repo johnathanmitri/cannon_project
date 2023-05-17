@@ -21,7 +21,7 @@ List of what we did:
 4) The targets are randomly generated and the number of targets is decided randomly (between 2-4 targets) that move in one particular direction atleast. So we made sure that we would have atleast 2 targets that move horizontally, vertically and diagonally each. The total number of targets can thus range anywhere between 6-12 targets.
 5) We additionally added a moving algorithm tank to fulfill the requirements of having an algorithm based tank that shoots from the machines end. Our Algorithm tank not only shoots at the user tank and its projectiles but also dodges the projectiles that are fired from the user tank and moves as required.
 6) Throughout the code we used polymorphism to make various classes that inherited according to their utility and type. Attached below you will find a UML Class Diagram Notation of the classes that you will see throughout our project. 
-
+```
                         Class GameObject
                         /      |       \
                        /       |        \
@@ -33,7 +33,7 @@ List of what we did:
              /  Class AlgorithmTank  \
             /                         \
      Class UserTank               Class Target
-    
+```
     
 7) And finally we have functions for initializing the game(initializeGame()) and generating targets(generateTargets()) as the 2 functions that are outside of these classes which are being called to run the game. 
 
