@@ -31,6 +31,7 @@ List of what we did:
                /    \        /     \         \
               /      \      /       \       Class Bullet 
              /  Class AlgorithmTank  \
+            /                         \
      Class UserTank               Class Target
     
     
