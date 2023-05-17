@@ -16,26 +16,30 @@ userTankImage = pg.image.load("userTank.png")
 algorithmTankImage = pg.image.load("algorithmTankImage.png")
 explosionImage = pg.image.load("explosion.png")
 
+#Setting the sizes of the screen, the lower boundary for the targets to bounce off of, the widths and heights of the tanks and the radius of the targets.
 SCREEN_SIZE = (1280, 720)
 LOWER_BOUNDARY = 150
 TANK_SPACE = 150
 
-TARGET_RADIUS = 50
-targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2))
 TANK_HALF_WIDTH = 25
 TANK_HALF_HEIGHT = 50
-
 ALGORITHM_TANK_HALF_WIDTH = 37.5
 ALGORITHM_TANK_HALF_HEIGHT = 50
 
+TARGET_RADIUS = 50
+
+#Scaling the images that are being used in the game to fit our screen.
+targetImage = pg.transform.scale(targetImage, (TARGET_RADIUS*2, TARGET_RADIUS*2))
 algorithmTankImage = pg.transform.scale(algorithmTankImage,(ALGORITHM_TANK_HALF_WIDTH*2, ALGORITHM_TANK_HALF_HEIGHT*2))
 userTankImage = pg.transform.scale(userTankImage, (TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
 explosionImage = pg.transform.scale(explosionImage, (TANK_HALF_WIDTH*5, TANK_HALF_HEIGHT*5))
 smallExplosionImage = pg.transform.scale(explosionImage, (50, 50))
 
+#using pygame to create a window with the title 
 screen = pg.display.set_mode((SCREEN_SIZE))
 pg.display.set_caption("The gun of بغداد")
 
+#Initializing the global variables which are used later 
 done = False
 clock = pg.time.Clock()
 frameCounter = 0
@@ -43,24 +47,30 @@ totalTargets = 0
 gameObjects = []
 bullets = []
 
+#Setting the teams to ints 0 and 1 which is used later to determine destruction of the gameObject on collision 
 PLAYER_TEAM = 0
 ENEMY_TEAM = 1
 
-#Making class Game Object that every class in the program is derived from
+#Making class Game Object that every class in the program is ultimately derived from
 class GameObject:
         
+     #Constructor that initializes the instance variables
     def __init__(self, team, x, y):
-        self.x = x
+        #Setting position of the object
+        self.x = x 
         self.y = y
-        self.vx = 0
+        #Setting the objects velocity in x and y directions
+        self.vx = 0 
         self.vy = 0
-        self.team = team
-        gameObjects.append(self)
+        self.team = team #Initializing the objects team
+        gameObjects.append(self) #Adding the object to the list gameObjects to keep a track of the objects
 
+    #Updates the position of the object on the screen by adding the velocities
     def update(self):
         self.x += self.vx
         self.y += self.vy
 
+    #This removes the object from the gameObject list 
     def destroy(self):
         if self in gameObjects:
             gameObjects.remove(self)
@@ -79,101 +89,96 @@ class GameObject:
 class Tank(GameObject):
 
     def shootAt(self, x, y, bulletSpeed):
-            '''
-            Shoots a tank shell in the direction of the position (x, y)
-            '''
-        #Projectile(self.team, self.x, self.y, 0, 10, 5)
-#MAking class Enemy that is parent to both the Targets and the Algorithm Tank
+            #Shoots a tank shell in the direction of the position (x, y)
+            pass
+        
+#Making class Enemy that is parent to both the Targets and the Algorithm Tank
 class Enemy(GameObject):
+
     def __init__(self,x,y):
-        super().__init__(ENEMY_TEAM, x, y)
+        super().__init__(ENEMY_TEAM, x, y) 
     def attack(self):
         pass
 
+#Making class Target that determines the behaviour of targets 
 class Target(Enemy):
     def __init__(self, x, y, vx, vy, radius):
         super().__init__(x, y)
         self.vx = vx
         self.vy = vy
         self.radius = radius
-    def draw(self):
+    
+    def draw(self): #Function to draw the target to the screen
         screen.blit(targetImage, (self.x-self.radius, self.y-self.radius))
 
+    #Function that makes the bombs drop out of the targets to attack the User tank 
     def attack(self):
         Projectile(self.team, self.x, self.y, 0, 10, 7)
 
+    #Function that updates the location of the target  
     def update(self):
         super().update()
-        # Make target bounce off of their boundaries.
+        # Make target bounce off of their boundaries when they hit the boundaries so they dont leave the screen
         if self.x <= TARGET_RADIUS or self.x >= (SCREEN_SIZE[0] - TARGET_RADIUS):
-            self.vx = -self.vx
+            self.vx = -self.vx #Reversing the direction of the target
         if self.y <= TANK_SPACE or self.y >= (SCREEN_SIZE[1] - LOWER_BOUNDARY):
-            self.vy = -self.vy
+            self.vy = -self.vy #Reversing the direction of the target 
 
-        if frameCounter % 90 == 0: # shoot every three seconds for now
+        if frameCounter % 90 == 0: # Shoots bombs every three seconds 
             self.attack()
-    def destroy(self):
-        super().destroy()
-        global score
-        score+=1
 
-    def getCollisionRect(self):
+    def destroy(self):
+        super().destroy() #destroys the target 
+        global score
+        score+=1 #When the target gets destroyed user score is incremeanted by 1 
+
+    def getCollisionRect(self): #Sets the area in which collison gets detected in
         return pg.Rect(self.x-self.radius,self.y-self.radius,self.radius*2, self.radius*2) 
 
+#Making class Algorithm tank that is a child of both Class Tank and class Enemy
 class AlgorithmTank(Tank, Enemy):
     def __init__(self, x, y):
         super().__init__(x,y)
     
-    def draw(self):
+    def draw(self): #Function to draw the target to the screen
         screen.blit(algorithmTankImage, (self.x - ALGORITHM_TANK_HALF_WIDTH, self.y - ALGORITHM_TANK_HALF_HEIGHT))#, TANK_HALF_WIDTH*2, TANK_HALF_HEIGHT*2))
-    
-    #def moveTo(self,x):
-     #   self.moveX = x
 
     def shootAt(self, x, y, bulletSpeed):
-
-        #object_x = object.x
-        #object_y = object.y
 
         #Calculating the direction the projectile is in 
         dirX = x - self.x
         dirY = y - self.y
 
-        #Someone Check my Physics/Math here
+        #Taking squareroot of the sum of the squares of direction X and direction y
         magnitude = (dirX ** 2 + dirY ** 2) ** 0.5
-        dirX = dirX / magnitude
-        dirY = dirY / magnitude
+        dirX = dirX / magnitude #Finds the x component
+        dirY = dirY / magnitude #Finds the y component
 
-        velocity_x = dirX * bulletSpeed
-        velocity_y = dirY * bulletSpeed
+        velocity_x = dirX * bulletSpeed #velocity in x direction = x component * speed
+        velocity_y = dirY * bulletSpeed #velocity in y direction = y component * speed
+        #Sends a bullet to the position calculated
         Bullet(self.team, self.x, self.y, velocity_x, velocity_y, 6, 2)
 
     
-    def update(self): #moves to dodge and shoots at projectiles(x,y)location
-        #make the tank move to dodge the first projectile released and then to shoot at it
-        #if no projectile is left then make it shoot at the user tank by taking in its position
-        #then go back and check for newer projectiles again 
-        
+    def update(self): #moves to dodge projectiles from the user
         super().update()
         for object in gameObjects:
-            if isinstance(object, Projectile) and (object.team == PLAYER_TEAM):
-                if object.y < 300:
-                    if object.x < self.x and object.x >= self.x - ALGORITHM_TANK_HALF_WIDTH - 12:
-                        self.x += 15
-                    elif object.x >= self.x and object.x <= self.x + ALGORITHM_TANK_HALF_WIDTH + 12:
-                        self.x -= 15
+            if isinstance(object, Projectile) and (object.team == PLAYER_TEAM): #If statement to check for if the object is a projectile and from the users team(PLAYER_TEAM)
+                if object.y < 300: #If statement to check if it is close enough to hit the algorithm tank
+                    if object.x < self.x and object.x >= self.x - ALGORITHM_TANK_HALF_WIDTH - 12: #If statement to check if it is between the center and the left end of the tank
+                        self.x += 15 #Dodges to the right by 15 
+                    elif object.x >= self.x and object.x <= self.x + ALGORITHM_TANK_HALF_WIDTH + 12:#If statement to check if it is between the center and the right end of the tank
+                        self.x -= 15 #Dodges to the left by 15
                 break
 
-        if frameCounter % 60 == 0: # shoot every three seconds for now
+        if frameCounter % 60 == 0: # Shoots every two seconds 
             self.shootAt(userTank.x, userTank.y, 20)
         pass
 
-#def getCollisionRect(self):
     def getCollisionRect(self):
-        # in order to ignore the blank space from the front of the tank up to the tip of the gun
-        ignoreTopPixelCount = 20
+        ignoreTopPixelCount = 20 # Variable to ignore the blank space from the front of the tank up to the tip of the gun
+        #Sets the area in which collison gets detected in
         return pg.Rect(self.x-ALGORITHM_TANK_HALF_WIDTH, self.y-ALGORITHM_TANK_HALF_HEIGHT, ALGORITHM_TANK_HALF_WIDTH*2, ALGORITHM_TANK_HALF_HEIGHT*2-ignoreTopPixelCount)
-
 
 class UserTank(Tank): 
     def __init__(self, x, y):

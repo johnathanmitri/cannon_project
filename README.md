@@ -5,7 +5,7 @@ Group Members: Marc Cruz, Prerna Joshi, Johnathan Mitri, and Zack Wawi
 The purpose of this assignment was to create a game and refactor the given file canon.py into a program with emphasis on modularization and object oriented programming. 
 To run the game, you have to ensure you have downloaded pygame and have both files my_colors.py and cannon.py and then you run canon.py
 
-How the game works: You keep shootig the targets and dodging until you die and your score is tracked. Everytime you kill all the targets that are on the screen, new targets respawn for you to shoot at and both tanks stay in the place where they were previously in. Note that the Algorithm tank is almost impossible to kill because it is made to dodge whenever you shoot at it. Algorithm tank shoots once in every 2 seconds. 
+How the game works: You keep shooting the targets and dodging until you die and your score is tracked. Everytime you kill all the targets that are on the screen, new targets respawn for you to shoot at and both tanks stay in the place where they were previously in. Note that the Algorithm tank is virtually impossible to kill because it is made to dodge whenever you shoot at it. Algorithm tank shoots once in every 2 seconds. 
 
 Controls:
 Left arrow key - Move left
