@@ -27,12 +27,12 @@ List of what we did:
                        /       |        \
                       /        |         \ 
                 Class Tank     |      Class Projectile
-                /  \      Class Enemy         \     
-               /    \        /     \           \
-              /      \      /       \           \   
-             /  Class AlgorithmTank  \           \
-            /                         \           \
-     Class UserTank               Class Target   Class Bullet
+                /  \      Class Enemy       \     
+               /    \        /     \         \
+              /      \      /       \       Class Bullet 
+             /  Class AlgorithmTank  \
+            /                         \
+     Class UserTank               Class Target
     
     
 7) And finally we have functions for initializing the game(initializeGame()) and generating targets(generateTargets()) as the 2 functions that are outside of these classes which are being called to run the game. 
