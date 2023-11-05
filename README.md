@@ -1,9 +1,30 @@
 # CS 2520 Final Project
 Python for programmers class
-Group Members: Marc Cruz, Prerna Joshi, Johnathan Mitri, and Zack Wawi
+Group Members: Johnathan Mitri, Prerna Joshi, Marc Cruz, and Zack Wawi
 
-The purpose of this assignment was to create a game and refactor the given file canon.py into a program with emphasis on modularization and object oriented programming. 
-To run the game, you have to ensure you have downloaded pygame and have both files my_colors.py and cannon.py and have all the .pngs downloaded and then you run canon.py
+The purpose of this assignment was to refactor a basic game, "canon.py", with an emphasis on modularization and object oriented programming. 
+
+The original game didn't look too fun, so we made something completely different. 
+
+
+https://github.com/johnathanmitri/cannon_project/assets/28831749/1904f254-fbe7-45f3-b2ed-2bf1e5967291
+
+# How to run the game: 
+
+First, ensure you have pygame installed: 
+```
+pip install pygame
+```
+Now you can run the game
+```
+python canon.py
+```
+
+# How to play: 
+The objective is to get the best score you can, of course.
+
+
+
 
 How the game works: You keep shooting the targets and dodging until you die and your score is tracked. Everytime you kill all the targets that are on the screen, new targets respawn for you to shoot at and both tanks stay in the place where they were previously in. Note that the Algorithm tank is virtually impossible to kill because it is made to dodge whenever you shoot at it. Algorithm tank shoots once in every 2 seconds. 
 
