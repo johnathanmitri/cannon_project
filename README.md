@@ -15,7 +15,7 @@ First, ensure you have pygame installed:
 ```
 pip install pygame
 ```
-Now you can run the game
+Now you can run the game from the root folder of the repository:
 ```
 python canon.py
 ```
@@ -23,19 +23,15 @@ python canon.py
 # How to play: 
 The objective is to get the best score you can, of course.
 
-Every target you destroy gives you a point. Once all targets are destroyed, a new set of targets spawn. Each target drops a bomb periodically, and the enemy plane at the top shoots directly at player.
+Every target you destroy gives you a point. Once all targets are destroyed, a new set of targets spawn. Each target drops a bomb periodically, and the enemy plane at the top shoots directly at the player.
 
+Bullets can also collide with bombs and bullets to destroy them.
 
-
-
-How the game works: You keep shooting the targets and dodging until you die and your score is tracked. Everytime you kill all the targets that are on the screen, new targets respawn for you to shoot at and both tanks stay in the place where they were previously in. Note that the Algorithm tank is virtually impossible to kill because it is made to dodge whenever you shoot at it. Algorithm tank shoots once in every 2 seconds. 
-
-Controls:
-Left arrow key - Move left
-Right arrow key - Move right
-Space bar - Fire a bullet
-R key - Restart game
-The  x button at the top right corner of the game's window lets you close the game.
+## Controls:
+- Left arrow key - Move left 
+- Right arrow key - Move right 
+- Space bar - Fire a bullet 
+- R key - Restart game 
 
 List of what we did:
 1) Initially while deciding on how to proceed with the project we all collectively agreed that we would want to make it our own. So at that point we used the inital code given to us as a reference point and created our project from scratch. 
@@ -59,6 +55,3 @@ List of what we did:
 ```
     
 7) And finally we have functions for initializing the game(initializeGame()) and generating targets(generateTargets()) as the 2 functions that are outside of these classes which are being called to run the game. 
-
-Link to cannon.py:
-https://github.com/johnathanmitri/cannon_project/tree/main/week13
