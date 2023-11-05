@@ -1,5 +1,4 @@
 # CS 2520 Final Project
-Python for programmers class
 Group Members: Johnathan Mitri, Prerna Joshi, Marc Cruz, and Zack Wawi
 
 The purpose of this assignment was to refactor a basic game, "canon.py", with an emphasis on modularization and object oriented programming. 
