@@ -23,6 +23,8 @@ python canon.py
 # How to play: 
 The objective is to get the best score you can, of course.
 
+Every target you destroy gives you a point. Once all targets are destroyed, a new set of targets spawn. Each target drops a bomb periodically, and the enemy plane at the top shoots directly at player.
+
 
 
 
